@@ -91,6 +91,18 @@ export async function updateWorkoutNotes(
   return { error: error?.message ?? null };
 }
 
+export async function deleteWorkout(
+  supabase: SupabaseClient,
+  workoutId: string
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('workouts')
+    .delete()
+    .eq('id', workoutId);
+
+  return { error: error?.message ?? null };
+}
+
 export async function getWorkoutForDate(
   supabase: SupabaseClient,
   userId: string,

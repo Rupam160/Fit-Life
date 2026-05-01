@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { X, Loader2, Save, CheckCircle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { getWorkoutForDate, updateWorkoutNotes } from '@/lib/api/workouts';
-import { useAuthStore } from '@/lib/store/useAuthStore';
+import { getWorkoutForDate, updateWorkoutNotes, deleteWorkout } from '@/lib/api/workouts';
+import { useWorkoutStore } from '@/lib/store/useWorkoutStore';
 import { WORKOUT_TYPE_LABELS, WORKOUT_TYPE_COLORS } from '@/lib/constants/calorieEstimates';
 import { cn } from '@/lib/utils';
 
@@ -16,15 +17,17 @@ interface WorkoutDetailsModalProps {
 }
 
 export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetailsModalProps) {
-  const user = useAuthStore((s) => s.user);
+  const router = useRouter();
+  const { setDate, setType, setExercises } = useWorkoutStore();
   const [loading, setLoading] = useState(true);
   const [workout, setWorkout] = useState<any>(null);
   const [notes, setNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (!isOpen || !dateStr || !user) return;
+    if (!isOpen || !dateStr) return;
 
     let isMounted = true;
     setLoading(true);
@@ -33,7 +36,13 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
 
     async function load() {
       const supabase = createClient();
-      const data = await getWorkoutForDate(supabase, user!.id, dateStr!);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        if (isMounted) setLoading(false);
+        return;
+      }
+      
+      const data = await getWorkoutForDate(supabase, user.id, dateStr!);
       if (isMounted) {
         setWorkout(data);
         setNotes(data?.notes || '');
@@ -46,7 +55,7 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
     return () => {
       isMounted = false;
     };
-  }, [isOpen, dateStr, user]);
+  }, [isOpen, dateStr]);
 
   async function handleSaveNotes() {
     if (!workout?.id) return;
@@ -56,8 +65,44 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
     setSavingNotes(false);
     if (!error) {
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => {
+        setSaved(false);
+        onClose();
+      }, 1000);
     }
+  }
+
+  async function handleDelete() {
+    if (!workout?.id) return;
+    if (!confirm('Are you sure you want to delete this workout? This action cannot be undone.')) return;
+    
+    setIsDeleting(true);
+    const supabase = createClient();
+    await deleteWorkout(supabase, workout.id);
+    setIsDeleting(false);
+    
+    onClose();
+    router.refresh();
+  }
+
+  function handleEdit() {
+    if (!workout) return;
+    setDate(workout.date);
+    setType(workout.type as any);
+    
+    const mappedExercises = (workout.exercises || []).map((ex: any) => ({
+      id: ex.id,
+      name: ex.name,
+      sets: (ex.sets || []).map((s: any) => ({
+        id: s.id,
+        set_number: s.set_number,
+        weight_kg: s.weight_kg?.toString() ?? '',
+        reps: s.reps?.toString() ?? '',
+      }))
+    }));
+    
+    setExercises(mappedExercises);
+    router.push('/workout');
   }
 
   if (!isOpen) return null;
@@ -149,6 +194,23 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
                   className="btn-secondary self-end text-xs py-1.5 px-3 h-auto"
                 >
                   {savingNotes ? 'Saving...' : <><Save className="w-3 h-3" /> Save Notes</>}
+                </button>
+              </div>
+
+              {/* Management */}
+              <div className="flex gap-2 pt-2 mt-2 border-t border-slate-100">
+                <button 
+                  onClick={handleEdit}
+                  className="flex-1 btn-secondary bg-slate-50 text-slate-700 border-slate-200"
+                >
+                  Edit Workout
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="flex-1 btn-secondary bg-red-50 text-red-600 border-red-100 hover:bg-red-100 hover:border-red-200"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
 
