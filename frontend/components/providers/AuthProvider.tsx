@@ -25,7 +25,7 @@ export function AuthProvider({ userId, children }: AuthProviderProps) {
 
       if (user) {
         setUser(user);
-        const profile = await getProfile(user.id);
+        const profile = await getProfile(supabase, user.id);
         setProfile(profile);
       }
       setLoading(false);

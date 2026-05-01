@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Save, CheckCircle } from 'lucide-react';
 import { updateProfile } from '@/lib/api/profile';
+import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import type { DbUser } from '@/lib/types/database';
 import type { GoalType } from '@/lib/types/database';
@@ -36,7 +37,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     setIsSaving(true);
     setError(null);
 
-    const { error: saveError } = await updateProfile(user.id, {
+    const supabase = createClient();
+    const { error: saveError } = await updateProfile(supabase, user.id, {
       name,
       current_weight: currentWeight ? parseFloat(currentWeight) : null,
       target_weight: targetWeight ? parseFloat(targetWeight) : null,

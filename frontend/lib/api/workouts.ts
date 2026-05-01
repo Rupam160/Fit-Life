@@ -1,14 +1,14 @@
-import { createClient } from '../supabase/client';
+import { SupabaseClient } from '@supabase/supabase-js';
 import type { ExerciseInput } from '../types/app';
 import type { WorkoutType } from '../types/database';
 
 export async function saveWorkout(
+  supabase: SupabaseClient,
   userId: string,
   date: string,
   type: WorkoutType,
   exercises: ExerciseInput[]
 ): Promise<{ workoutId: string | null; error: string | null }> {
-  const supabase = createClient();
 
   // Upsert workout row
   const { data: workout, error: workoutError } = await supabase
@@ -60,11 +60,11 @@ export async function saveWorkout(
 }
 
 export async function getWorkoutDates(
+  supabase: SupabaseClient,
   userId: string,
   fromDate: string,
   toDate: string
 ): Promise<Array<{ date: string; type: WorkoutType }>> {
-  const supabase = createClient();
 
   const { data, error } = await supabase
     .from('workouts')
@@ -79,10 +79,10 @@ export async function getWorkoutDates(
 }
 
 export async function getWorkoutForDate(
+  supabase: SupabaseClient,
   userId: string,
   date: string
 ) {
-  const supabase = createClient();
 
   const { data: workout } = await supabase
     .from('workouts')

@@ -1,9 +1,8 @@
-import { createClient } from '../supabase/client';
+import { SupabaseClient } from '@supabase/supabase-js';
 import type { DbUser } from '../types/database';
 import type { ProfileUpdate } from '../types/app';
 
-export async function getProfile(userId: string): Promise<DbUser | null> {
-  const supabase = createClient();
+export async function getProfile(supabase: SupabaseClient, userId: string): Promise<DbUser | null> {
 
   const { data, error } = await supabase
     .from('users')
@@ -16,10 +15,10 @@ export async function getProfile(userId: string): Promise<DbUser | null> {
 }
 
 export async function updateProfile(
+  supabase: SupabaseClient,
   userId: string,
   updates: ProfileUpdate
 ): Promise<{ error: string | null }> {
-  const supabase = createClient();
 
   const { error } = await supabase
     .from('users')
@@ -30,10 +29,10 @@ export async function updateProfile(
 }
 
 export async function uploadAvatar(
+  supabase: SupabaseClient,
   userId: string,
   file: File
 ): Promise<{ url: string | null; error: string | null }> {
-  const supabase = createClient();
 
   if (file.size > 2 * 1024 * 1024) {
     return { url: null, error: 'File size must be under 2MB' };

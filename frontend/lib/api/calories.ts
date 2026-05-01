@@ -1,4 +1,4 @@
-import { createClient } from '../supabase/client';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { estimateCalories } from '../constants/calorieEstimates';
 import type { WeeklyCaloriesPoint, ConsistencyPoint } from '../types/app';
 import type { WorkoutType } from '../types/database';
@@ -19,9 +19,9 @@ function getLast30Days(): string[] {
 }
 
 export async function getWeeklyCalories(
+  supabase: SupabaseClient,
   userId: string
 ): Promise<WeeklyCaloriesPoint[]> {
-  const supabase = createClient();
   const last7 = getLast7Days();
   const from = last7[0];
   const to = last7[last7.length - 1];
@@ -52,10 +52,10 @@ export async function getWeeklyCalories(
 }
 
 export async function getDailyCalories(
+  supabase: SupabaseClient,
   userId: string,
   date: string
 ): Promise<number> {
-  const supabase = createClient();
 
   const { data } = await supabase
     .from('workouts')
@@ -69,9 +69,9 @@ export async function getDailyCalories(
 }
 
 export async function getConsistencyTrend(
+  supabase: SupabaseClient,
   userId: string
 ): Promise<ConsistencyPoint[]> {
-  const supabase = createClient();
   const last30 = getLast30Days();
   const from = last30[0];
   const to = last30[last30.length - 1];

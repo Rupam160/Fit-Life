@@ -30,11 +30,11 @@ export default async function DashboardPage() {
 
   const [streak, weeklyCalories, dailyCalories, consistencyTrend, workoutDates] =
     await Promise.all([
-      getStreak(user.id),
-      getWeeklyCalories(user.id),
-      getDailyCalories(user.id, todayStr),
-      getConsistencyTrend(user.id),
-      getWorkoutDates(user.id, thirtyDaysAgo, todayStr),
+      getStreak(supabase, user.id),
+      getWeeklyCalories(supabase, user.id),
+      getDailyCalories(supabase, user.id, todayStr),
+      getConsistencyTrend(supabase, user.id),
+      getWorkoutDates(supabase, user.id, thirtyDaysAgo, todayStr),
     ]);
 
   // Find today's workout type for the daily calories card

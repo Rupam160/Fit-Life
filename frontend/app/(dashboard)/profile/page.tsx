@@ -18,7 +18,7 @@ export default async function ProfilePage() {
 
   if (!user) redirect('/login');
 
-  const profile = await getProfile(user.id);
+  const profile = await getProfile(supabase, user.id);
 
   if (!profile) redirect('/login');
 

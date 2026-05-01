@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, Save, CheckCircle } from 'lucide-react';
 import { useWorkoutStore } from '@/lib/store/useWorkoutStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { saveWorkout } from '@/lib/api/workouts';
 import { updateStreak } from '@/lib/api/streaks';
+import { createClient } from '@/lib/supabase/client';
 import { ExerciseRow } from './ExerciseRow';
 import { WeeklyRoutinePanel } from './WeeklyRoutinePanel';
 import { getTodayRoutine } from '@/lib/constants/weeklyRoutine';
@@ -20,6 +22,7 @@ function uid() {
 }
 
 export function WorkoutLogger() {
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const {
     date, type, exercises,
@@ -58,7 +61,8 @@ export function WorkoutLogger() {
     setSaving(true);
     setSaveError(null);
 
-    const { workoutId, error } = await saveWorkout(user.id, date, type, exercises);
+    const supabase = createClient();
+    const { workoutId, error } = await saveWorkout(supabase, user.id, date, type, exercises);
 
     if (error) {
       setSaveError(error);
@@ -67,13 +71,16 @@ export function WorkoutLogger() {
     }
 
     // Update streak
-    await updateStreak(user.id, date);
+    await updateStreak(supabase, user.id, date);
 
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setLastSaved(now);
     setSaving(false);
     setJustSaved(true);
-    setTimeout(() => setJustSaved(false), 3000);
+
+    // Invalidate dashboard cache and redirect
+    router.refresh();
+    router.push('/dashboard');
   }
 
   return (

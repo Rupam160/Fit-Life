@@ -39,7 +39,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'flex flex-col h-screen bg-white border-r border-slate-100 shadow-sm',
+        'hidden md:flex flex-col h-screen bg-white border-r border-slate-100 shadow-sm',
         'transition-all duration-300 ease-in-out overflow-hidden',
         collapsed ? 'w-[68px]' : 'w-[240px]'
       )}

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Camera, Loader2 } from 'lucide-react';
 import { uploadAvatar } from '@/lib/api/profile';
+import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { cn } from '@/lib/utils';
 
@@ -35,7 +36,8 @@ export function AvatarUpload({ currentUrl, name }: AvatarUploadProps) {
     const localUrl = URL.createObjectURL(file);
     setPreviewUrl(localUrl);
 
-    const { url, error: uploadError } = await uploadAvatar(user.id, file);
+    const supabase = createClient();
+    const { url, error: uploadError } = await uploadAvatar(supabase, user.id, file);
 
     if (uploadError) {
       setError(uploadError);

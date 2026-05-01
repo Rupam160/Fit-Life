@@ -1,8 +1,7 @@
-import { createClient } from '../supabase/client';
+import { SupabaseClient } from '@supabase/supabase-js';
 import type { DbStreak, StreakUpdateResult } from '../types/database';
 
-export async function getStreak(userId: string): Promise<DbStreak | null> {
-  const supabase = createClient();
+export async function getStreak(supabase: SupabaseClient, userId: string): Promise<DbStreak | null> {
 
   const { data, error } = await supabase
     .from('streaks')
@@ -15,10 +14,10 @@ export async function getStreak(userId: string): Promise<DbStreak | null> {
 }
 
 export async function updateStreak(
+  supabase: SupabaseClient,
   userId: string,
   workoutDate: string
 ): Promise<StreakUpdateResult | null> {
-  const supabase = createClient();
 
   const { data, error } = await supabase.rpc('update_streak', {
     p_user_id: userId,
