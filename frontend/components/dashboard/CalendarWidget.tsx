@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
-import { format, parseISO, subDays, isSameDay, isToday } from 'date-fns';
+import { useMemo, useState } from 'react';
+import { format, subDays, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { WORKOUT_TYPE_COLORS } from '@/lib/constants/calorieEstimates';
+import { WorkoutDetailsModal } from './WorkoutDetailsModal';
 import type { WorkoutType } from '@/lib/types/database';
 
 interface CalendarWidgetProps {
@@ -13,6 +14,8 @@ interface CalendarWidgetProps {
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function CalendarWidget({ workouts }: CalendarWidgetProps) {
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
   // Build a map of date -> workout type
   const workoutMap = useMemo(() => {
     const map = new Map<string, WorkoutType>();
@@ -71,13 +74,14 @@ export function CalendarWidget({ workouts }: CalendarWidgetProps) {
               return (
                 <div
                   key={dateStr}
+                  onClick={() => !isFuture && setSelectedDate(dateStr)}
                   title={type ? `${format(date, 'MMM d')} — ${type.charAt(0).toUpperCase() + type.slice(1)}` : format(date, 'MMM d')}
                   className={cn(
-                    'relative aspect-square rounded-lg flex items-center justify-center cursor-default transition-all',
-                    isFuture ? 'opacity-30' : '',
+                    'relative aspect-square rounded-lg flex items-center justify-center transition-all',
+                    isFuture ? 'opacity-30 cursor-default' : 'cursor-pointer hover:ring-2 hover:ring-slate-300 hover:ring-offset-1',
                     today_ ? 'ring-2 ring-slate-800 ring-offset-1' : '',
                     !type && !isFuture ? 'bg-slate-100' : '',
-                    type ? 'text-white' : 'text-slate-400'
+                    type ? 'text-white shadow-sm' : 'text-slate-400'
                   )}
                   style={color && !isFuture ? { backgroundColor: color } : undefined}
                 >
@@ -104,6 +108,12 @@ export function CalendarWidget({ workouts }: CalendarWidgetProps) {
           <span className="text-xs text-slate-500">Rest</span>
         </div>
       </div>
+
+      <WorkoutDetailsModal 
+        dateStr={selectedDate} 
+        isOpen={!!selectedDate} 
+        onClose={() => setSelectedDate(null)} 
+      />
     </div>
   );
 }

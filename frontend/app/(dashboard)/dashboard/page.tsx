@@ -3,11 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { getStreak } from '@/lib/api/streaks';
 import { getWeeklyCalories, getDailyCalories, getConsistencyTrend } from '@/lib/api/calories';
 import { getWorkoutDates } from '@/lib/api/workouts';
+import { getVolumeProgress } from '@/lib/api/progress';
 import { CalendarWidget } from '@/components/dashboard/CalendarWidget';
 import { StreakCard } from '@/components/dashboard/StreakCard';
 import { CaloriesChart } from '@/components/dashboard/CaloriesChart';
 import { DailyCaloriesCard } from '@/components/dashboard/DailyCaloriesCard';
 import { ConsistencyTrend } from '@/components/dashboard/ConsistencyTrend';
+import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { format } from 'date-fns';
 import type { WorkoutType } from '@/lib/types/database';
 
@@ -28,13 +30,14 @@ export default async function DashboardPage() {
   const todayStr = format(today, 'yyyy-MM-dd');
   const thirtyDaysAgo = format(new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
 
-  const [streak, weeklyCalories, dailyCalories, consistencyTrend, workoutDates] =
+  const [streak, weeklyCalories, dailyCalories, consistencyTrend, workoutDates, volumeProgress] =
     await Promise.all([
       getStreak(supabase, user.id),
       getWeeklyCalories(supabase, user.id),
       getDailyCalories(supabase, user.id, todayStr),
       getConsistencyTrend(supabase, user.id),
       getWorkoutDates(supabase, user.id, thirtyDaysAgo, todayStr),
+      getVolumeProgress(supabase, user.id),
     ]);
 
   // Find today's workout type for the daily calories card
@@ -62,9 +65,14 @@ export default async function DashboardPage() {
       {/* Calendar */}
       <CalendarWidget workouts={workoutDates} />
 
-      {/* Charts row */}
+      {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ProgressChart data={volumeProgress} />
         <CaloriesChart data={weeklyCalories} />
+      </div>
+
+      {/* Charts row 2 */}
+      <div className="grid grid-cols-1 gap-4">
         <ConsistencyTrend data={consistencyTrend} />
       </div>
     </div>

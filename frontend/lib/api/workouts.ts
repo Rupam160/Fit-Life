@@ -78,6 +78,19 @@ export async function getWorkoutDates(
   return data as Array<{ date: string; type: WorkoutType }>;
 }
 
+export async function updateWorkoutNotes(
+  supabase: SupabaseClient,
+  workoutId: string,
+  notes: string | null
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('workouts')
+    .update({ notes })
+    .eq('id', workoutId);
+
+  return { error: error?.message ?? null };
+}
+
 export async function getWorkoutForDate(
   supabase: SupabaseClient,
   userId: string,
@@ -90,6 +103,7 @@ export async function getWorkoutForDate(
       id,
       date,
       type,
+      notes,
       exercises (
         id,
         name,
