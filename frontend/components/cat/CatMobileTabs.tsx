@@ -17,7 +17,7 @@ export function CatMobileTabs() {
   const pathname = usePathname();
 
   return (
-    <div className="md:hidden bg-white border-b border-slate-100 overflow-x-auto scrollbar-hide sticky top-0 z-40">
+    <div className="md:hidden bg-white border-b border-slate-100 overflow-x-auto scrollbar-hide sticky top-0 z-40 -mx-4 -mt-6 mb-6">
       <div className="flex px-4 py-3 gap-2 w-max">
         {catNavItems.map(({ href, label }) => {
           const isActive = pathname === href || pathname.startsWith(href + '/');
