@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 export default function CatAnalyticsPage() {
   const user = useAuthStore((s) => s.user);
+  const isAuthLoading = useAuthStore((s) => s.isLoading);
   const supabase = createClient();
   const [dash, setDash] = useState<DashboardData | null>(null);
   const [trend, setTrend] = useState<SubjectTrendPoint[]>([]);
@@ -26,17 +27,21 @@ export default function CatAnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (isAuthLoading) return;
+    if (!user) { setLoading(false); return; }
     Promise.all([
       getDashboardData(supabase, user.id),
       getSubjectTrend(supabase, user.id, 30),
       getMockScoreTrend(supabase, user.id),
       getStudyDistribution(supabase, user.id),
       getWeeklyConsistency(supabase, user.id, 8),
-    ]).then(([d, t, m, di, w]) => {
-      setDash(d); setTrend(t); setMocks(m); setDist(di); setWeekly(w);
-    }).finally(() => setLoading(false));
-  }, [user]);
+    ])
+      .then(([d, t, m, di, w]) => {
+        setDash(d); setTrend(t); setMocks(m); setDist(di); setWeekly(w);
+      })
+      .catch((e) => console.error('Analytics load error:', e))
+      .finally(() => setLoading(false));
+  }, [user, isAuthLoading]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">

@@ -90,6 +90,7 @@ function SubjectProgressBar({
 
 export function CatDashboard() {
   const user = useAuthStore((s) => s.user);
+  const isAuthLoading = useAuthStore((s) => s.isLoading);
   const supabase = createClient();
 
   const [dash, setDash] = useState<DashboardData | null>(null);
@@ -100,7 +101,8 @@ export function CatDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (isAuthLoading) return; // Auth still resolving — keep spinner
+    if (!user) { setLoading(false); return; } // Not logged in
     async function load() {
       try {
         const [d, t, m, di, w] = await Promise.all([
@@ -115,12 +117,14 @@ export function CatDashboard() {
         setMocks(m);
         setDist(di);
         setWeekly(w);
+      } catch (e) {
+        console.error('CAT dashboard load error:', e);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [user]);
+  }, [user, isAuthLoading]);
 
   if (loading) {
     return (

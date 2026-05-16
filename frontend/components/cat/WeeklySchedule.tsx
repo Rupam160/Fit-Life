@@ -136,18 +136,20 @@ function EditModal({ cell, onClose, onSave, onDelete }: EditModalProps) {
 
 export function WeeklySchedule() {
   const user = useAuthStore((s) => s.user);
+  const isAuthLoading = useAuthStore((s) => s.isLoading);
   const supabase = createClient();
   const [items, setItems] = useState<CatScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<CellEditState | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    getSchedule(supabase, user.id).then((data) => {
-      setItems(data);
-      setLoading(false);
-    });
-  }, [user]);
+    if (isAuthLoading) return;
+    if (!user) { setLoading(false); return; }
+    getSchedule(supabase, user.id)
+      .then((data) => { setItems(data); })
+      .catch((e) => console.error('Schedule load error:', e))
+      .finally(() => setLoading(false));
+  }, [user, isAuthLoading]);
 
   function getCell(day: ScheduleDay, slot: string) {
     return items.find((it) => it.day === day && it.time_slot === slot) ?? null;

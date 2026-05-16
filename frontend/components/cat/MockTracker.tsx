@@ -160,6 +160,7 @@ function MockForm({ initial, onClose, onSave, onDelete }: MockFormProps) {
 
 export function MockTracker() {
   const user = useAuthStore((s) => s.user);
+  const isAuthLoading = useAuthStore((s) => s.isLoading);
   const supabase = createClient();
   const [mocks, setMocks] = useState<MockTest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,9 +168,13 @@ export function MockTracker() {
   const [editing, setEditing] = useState<MockTest | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    getMockTests(supabase, user.id).then((data) => { setMocks(data); setLoading(false); });
-  }, [user]);
+    if (isAuthLoading) return;
+    if (!user) { setLoading(false); return; }
+    getMockTests(supabase, user.id)
+      .then((data) => { setMocks(data); })
+      .catch((e) => console.error('Mock tests load error:', e))
+      .finally(() => setLoading(false));
+  }, [user, isAuthLoading]);
 
   async function handleSave(data: MockTestInput, id?: string) {
     if (!user) return;

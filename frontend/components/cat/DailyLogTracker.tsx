@@ -135,6 +135,7 @@ function LogForm({ date, initial, onClose, onSave, onDelete }: LogFormProps) {
 
 export function DailyLogTracker() {
   const user = useAuthStore((s) => s.user);
+  const isAuthLoading = useAuthStore((s) => s.isLoading);
   const supabase = createClient();
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [dayLogs, setDayLogs] = useState<CatLog[]>([]);
@@ -144,16 +145,19 @@ export function DailyLogTracker() {
   const [editing, setEditing] = useState<CatLog | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (isAuthLoading) return;
+    if (!user) { setLoading(false); return; }
     Promise.all([
       getCatLogsForDate(supabase, user.id, selectedDate),
       getCatLogs(supabase, user.id, 30),
-    ]).then(([day, recent]) => {
-      setDayLogs(day);
-      setRecentLogs(recent);
-      setLoading(false);
-    });
-  }, [user, selectedDate]);
+    ])
+      .then(([day, recent]) => {
+        setDayLogs(day);
+        setRecentLogs(recent);
+      })
+      .catch((e) => console.error('Daily log load error:', e))
+      .finally(() => setLoading(false));
+  }, [user, isAuthLoading, selectedDate]);
 
   async function handleSave(data: CatLogInput, id?: string) {
     if (!user) return;
