@@ -1,0 +1,4 @@
+// CAT section uses the same (dashboard) layout — no separate layout needed.
+// This file is intentionally empty; the (dashboard) layout.tsx wraps all routes
+// including /cat/* via the route group.
+export {};

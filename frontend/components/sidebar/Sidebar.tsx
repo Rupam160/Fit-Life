@@ -10,6 +10,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  BookOpen,
+  ClipboardList,
+  FileText,
+  BarChart3,
+  Calendar,
+  Lightbulb,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -19,10 +25,19 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const navItems = [
+const gymNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/workout', label: 'Workout', icon: Dumbbell },
   { href: '/profile', label: 'Profile', icon: User },
+];
+
+const catNavItems = [
+  { href: '/cat/dashboard', label: 'CAT Dashboard', icon: BookOpen },
+  { href: '/cat/daily-log', label: 'Daily Log', icon: ClipboardList },
+  { href: '/cat/mocks', label: 'Mock Tests', icon: FileText },
+  { href: '/cat/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/cat/schedule', label: 'Schedule', icon: Calendar },
+  { href: '/cat/strategy', label: 'Strategy', icon: Lightbulb },
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
@@ -82,8 +97,42 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
-        {navItems.map(({ href, label, icon: Icon }) => {
+      <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto scrollbar-hide">
+        {/* Gym Section */}
+        {!collapsed && (
+          <p className="px-3 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+            Fitness
+          </p>
+        )}
+        {gymNavItems.map(({ href, label, icon: Icon }) => {
+          const isActive = pathname === href || pathname.startsWith(href + '/');
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'sidebar-link',
+                isActive && 'sidebar-link-active',
+                collapsed && 'justify-center px-2'
+              )}
+              title={collapsed ? label : undefined}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              {!collapsed && <span>{label}</span>}
+            </Link>
+          );
+        })}
+
+        {/* Divider */}
+        <div className={cn('my-2 border-t border-slate-100', collapsed && 'mx-2')} />
+
+        {/* CAT Prep Section */}
+        {!collapsed && (
+          <p className="px-3 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+            CAT Prep
+          </p>
+        )}
+        {catNavItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + '/');
           return (
             <Link
