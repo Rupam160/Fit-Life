@@ -49,15 +49,21 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
     setMounted(true);
   }, []);
 
-  // Prevent background page body scroll when modal is open
+  // Lock mobile and desktop background scroll completely
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
     } else {
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     }
     return () => {
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     };
   }, [isOpen]);
 
@@ -110,17 +116,17 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-xl sm:max-w-2xl w-full overflow-hidden flex flex-col max-h-[82dvh] sm:max-h-[85vh] my-auto">
         {/* Header */}
-        <div className="h-14 px-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
-              <Droplets className="w-4 h-4" />
+        <div className="h-12 sm:h-14 px-4 sm:px-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
+              <Droplets className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 tracking-tight">Period & Mood Tracker</h3>
-              <p className="text-[11px] text-slate-400 font-medium">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">Period & Mood Tracker</h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
                 {format(parseISO(dateStr), 'EEEE, MMMM d, yyyy')}
               </p>
             </div>
@@ -135,78 +141,78 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
 
         {/* Modal Body */}
         <div className="flex-1 flex flex-col sm:flex-row min-h-0 overflow-hidden">
-          {/* Left Navigation */}
-          <div className="w-full sm:w-48 bg-slate-50/70 border-b sm:border-b-0 sm:border-r border-slate-100 p-2 sm:p-3 shrink-0 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-y-auto scrollbar-hide">
+          {/* Compact Top Strip on Mobile / Left Sidebar on Desktop */}
+          <div className="w-full sm:w-44 bg-slate-50/80 border-b sm:border-b-0 sm:border-r border-slate-100 p-1.5 sm:p-3 shrink-0 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-y-auto scrollbar-hide">
             <button
               onClick={() => setActiveSection('period')}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap',
+                'flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap',
                 activeSection === 'period'
                   ? 'bg-white text-slate-900 border border-slate-200/80 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
               )}
             >
-              <Droplets className="w-3.5 h-3.5 text-rose-500" />
+              <Droplets className="w-3.5 h-3.5 text-rose-500 shrink-0" />
               Period & Flow
             </button>
             <button
               onClick={() => setActiveSection('mood')}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap',
+                'flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap',
                 activeSection === 'mood'
                   ? 'bg-white text-slate-900 border border-slate-200/80 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
               )}
             >
-              <Smile className="w-3.5 h-3.5 text-amber-500" />
+              <Smile className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               Daily Mood
             </button>
             <button
               onClick={() => setActiveSection('symptoms')}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap',
+                'flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap',
                 activeSection === 'symptoms'
                   ? 'bg-white text-slate-900 border border-slate-200/80 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
               )}
             >
-              <Activity className="w-3.5 h-3.5 text-indigo-500" />
+              <Activity className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               Symptoms & Notes
             </button>
           </div>
 
-          {/* Main Section Content */}
-          <div className="flex-1 p-5 sm:p-6 overflow-y-auto scrollbar-hide space-y-5">
+          {/* Section Main Content */}
+          <div className="flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-hide space-y-4 sm:space-y-5">
             {activeSection === 'period' && (
-              <div className="space-y-5 animate-fade-in">
-                <div className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 flex items-center justify-between">
+              <div className="space-y-4 sm:space-y-5 animate-fade-in">
+                <div className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/50 flex items-center justify-between">
                   <div>
                     <label className="text-xs font-bold text-slate-900 block">Period Active on Date</label>
-                    <span className="text-[11px] text-slate-400">Mark if period cycle is active today</span>
+                    <span className="text-[10px] sm:text-[11px] text-slate-400">Mark if period cycle is active today</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsPeriodDay(!isPeriodDay)}
                     className={cn(
-                      'w-12 h-6 rounded-full transition-all relative flex items-center px-0.5',
+                      'w-11 h-6 rounded-full transition-all relative flex items-center px-0.5',
                       isPeriodDay ? 'bg-rose-600' : 'bg-slate-300'
                     )}
                   >
                     <div
                       className={cn(
                         'w-5 h-5 rounded-full bg-white shadow-sm transition-all transform',
-                        isPeriodDay ? 'translate-x-6' : 'translate-x-0'
+                        isPeriodDay ? 'translate-x-[20px]' : 'translate-x-0'
                       )}
                     />
                   </button>
                 </div>
 
                 {isPeriodDay && (
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Flow Intensity & Color Gradient Fading (Days 1–7)
+                  <div className="space-y-2.5">
+                    <label className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                      Flow Intensity & Color Gradient (Days 1–7)
                     </label>
-                    <div className="grid grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                       {FLOW_OPTIONS.map((f, idx) => {
                         const isSelected = flowIntensity === f.value;
                         return (
@@ -217,20 +223,20 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                               setFlowDay(idx === 0 ? 1 : idx === 1 ? 3 : idx === 2 ? 5 : 7);
                             }}
                             className={cn(
-                              'p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
+                              'p-2.5 sm:p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
                               isSelected
                                 ? 'border-slate-900 bg-slate-900 text-white shadow-sm font-bold'
                                 : 'border-slate-200/80 bg-white hover:border-slate-300 text-slate-800'
                             )}
                           >
-                            <div className="flex items-center gap-2.5">
-                              <span className={cn('w-3 h-3 rounded-full shrink-0', f.color.split(' ')[0])} />
+                            <div className="flex items-center gap-2">
+                              <span className={cn('w-2.5 h-2.5 rounded-full shrink-0', f.color.split(' ')[0])} />
                               <div>
-                                <p className="text-xs font-bold">{f.label}</p>
-                                <p className={cn('text-[10px]', isSelected ? 'text-slate-300' : 'text-slate-400')}>{f.dayRange}</p>
+                                <p className="text-[11px] sm:text-xs font-bold">{f.label}</p>
+                                <p className={cn('text-[9px] sm:text-[10px]', isSelected ? 'text-slate-300' : 'text-slate-400')}>{f.dayRange}</p>
                               </div>
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-white" />}
+                            {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0" />}
                           </div>
                         );
                       })}
@@ -241,11 +247,11 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
             )}
 
             {activeSection === 'mood' && (
-              <div className="space-y-4 animate-fade-in">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              <div className="space-y-3.5 animate-fade-in">
+                <label className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                   Select Daily Mood Emoji
                 </label>
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-3 gap-2">
                   {MOOD_OPTIONS.map((m) => {
                     const isSelected = mood === m.value;
                     return (
@@ -253,14 +259,14 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                         key={m.value}
                         onClick={() => setMood(m.value)}
                         className={cn(
-                          'p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5',
+                          'p-2.5 rounded-xl border cursor-pointer transition-all flex items-center gap-2',
                           isSelected
                             ? 'border-slate-900 bg-slate-900 text-white shadow-sm font-bold'
                             : 'border-slate-200/80 bg-white hover:border-slate-300 text-slate-700'
                         )}
                       >
-                        <span className="text-xl">{m.emoji}</span>
-                        <span className="text-xs font-semibold">{m.label}</span>
+                        <span className="text-lg sm:text-xl">{m.emoji}</span>
+                        <span className="text-[11px] sm:text-xs font-semibold truncate">{m.label}</span>
                       </div>
                     );
                   })}
@@ -269,9 +275,9 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
             )}
 
             {activeSection === 'symptoms' && (
-              <div className="space-y-4 animate-fade-in">
+              <div className="space-y-3.5 animate-fade-in">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">
                     Symptom Badges
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -283,7 +289,7 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                           type="button"
                           onClick={() => toggleSymptom(tag)}
                           className={cn(
-                            'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border',
+                            'px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all border',
                             selected
                               ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
                               : 'bg-white text-slate-600 border-slate-200/80 hover:border-slate-300'
@@ -297,14 +303,14 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
                     Daily Notes
                   </label>
                   <textarea
                     placeholder="Enter any additional cycle notes..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200/80 bg-white px-3.5 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all h-20 resize-none"
+                    className="w-full rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all h-20 resize-none"
                   />
                 </div>
               </div>
@@ -312,12 +318,12 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="h-16 px-6 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between shrink-0">
+        {/* Footer Action Bar */}
+        <div className="h-14 sm:h-16 px-4 sm:px-6 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+            className="flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Reset
@@ -327,14 +333,14 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-slate-200/80 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-slate-200/80 bg-white text-[11px] sm:text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-sm hover:bg-slate-800 active:scale-95 transition-all"
+              className="px-4 py-1.5 sm:px-5 sm:py-2 rounded-xl bg-slate-900 text-white text-[11px] sm:text-xs font-semibold shadow-sm hover:bg-slate-800 active:scale-95 transition-all"
             >
               Ok
             </button>

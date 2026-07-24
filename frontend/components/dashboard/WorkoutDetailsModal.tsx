@@ -33,14 +33,21 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
     setMounted(true);
   }, []);
 
+  // Lock mobile and desktop background scroll completely
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
     } else {
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     }
     return () => {
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     };
   }, [isOpen]);
 
