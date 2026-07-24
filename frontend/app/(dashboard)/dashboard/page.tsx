@@ -13,6 +13,8 @@ import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { format } from 'date-fns';
 import type { WorkoutType } from '@/lib/types/database';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Dashboard — FitTrack Pro',
   description: 'View your workout streaks, calendar, and calorie trends.',

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getDashboardData, getSubjectTrend, getMockScoreTrend, getStudyDistribution, getWeeklyConsistency } from '@/lib/api/cat';
 import { AnalyticsClient } from '@/components/cat/AnalyticsClient';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Analytics | CAT Prep',
   description: 'Detailed performance insights across all CAT subjects.',
