@@ -130,7 +130,47 @@ export async function getWorkoutForDate(
     `)
     .eq('user_id', userId)
     .eq('date', date)
-    .single();
+    .maybeSingle();
 
   return workout ?? null;
+}
+
+export async function getLastWorkoutForType(
+  supabase: SupabaseClient,
+  userId: string,
+  type: WorkoutType,
+  beforeDate?: string
+) {
+  let query = supabase
+    .from('workouts')
+    .select(`
+      id,
+      date,
+      type,
+      notes,
+      exercises (
+        id,
+        name,
+        order_index,
+        sets (
+          id,
+          set_number,
+          weight_kg,
+          reps
+        )
+      )
+    `)
+    .eq('user_id', userId)
+    .eq('type', type);
+
+  if (beforeDate) {
+    query = query.lt('date', beforeDate);
+  }
+
+  const { data } = await query
+    .order('date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data ?? null;
 }

@@ -10,6 +10,7 @@ import { updateStreak } from '@/lib/api/streaks';
 import { createClient } from '@/lib/supabase/client';
 import { ExerciseRow } from './ExerciseRow';
 import { WeeklyRoutinePanel } from './WeeklyRoutinePanel';
+import { TemplateSelectorPanel } from './TemplateSelectorPanel';
 import { getTodayRoutine } from '@/lib/constants/weeklyRoutine';
 import { WORKOUT_TYPE_LABELS } from '@/lib/constants/calorieEstimates';
 import { cn } from '@/lib/utils';
@@ -35,7 +36,7 @@ export function WorkoutLogger() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
 
-  // Auto-load today's routine on mount
+  // Auto-load today's routine on mount if empty
   useEffect(() => {
     const routine = getTodayRoutine();
     if (routine && exercises.length === 0) {
@@ -85,44 +86,54 @@ export function WorkoutLogger() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Routine loader */}
+      {/* Weekly Routine Bar */}
       <WeeklyRoutinePanel />
 
-      {/* Workout meta */}
-      <div className="card-base p-4 flex flex-wrap gap-4 items-center">
-        {/* Date */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-slate-500">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="input-base text-sm py-2"
-            style={{ width: '160px' }}
-          />
-        </div>
+      {/* Workout meta (Date & Type) */}
+      <div className="card-base p-4 flex flex-wrap gap-4 items-center justify-between">
+        <div className="flex flex-wrap gap-4 items-center">
+          {/* Date */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-slate-500">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="input-base text-sm py-2"
+              style={{ width: '160px' }}
+            />
+          </div>
 
-        {/* Type */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-slate-500">Workout type</label>
-          <div className="flex gap-1.5">
-            {WORKOUT_TYPES.map((t) => (
-              <button
-                key={t}
-                onClick={() => setType(t)}
-                className={cn(
-                  'px-3 py-2 rounded-xl text-xs font-medium border transition-all',
-                  type === t
-                    ? 'bg-slate-800 text-white border-slate-800'
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
-                )}
-              >
-                {WORKOUT_TYPE_LABELS[t]}
-              </button>
-            ))}
+          {/* Type */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-slate-500">Workout type</label>
+            <div className="flex gap-1.5">
+              {WORKOUT_TYPES.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setType(t)}
+                  className={cn(
+                    'px-3 py-2 rounded-xl text-xs font-semibold border transition-all',
+                    type === t
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                  )}
+                >
+                  {WORKOUT_TYPE_LABELS[t]}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Routine Templates & Auto-Load Last Session */}
+      <TemplateSelectorPanel
+        userId={user?.id ?? null}
+        workoutType={type}
+        currentDate={date}
+        onApplyTemplate={(newExercises) => setExercises(newExercises)}
+      />
 
       {/* Exercise list */}
       <div className="flex flex-col gap-3">
