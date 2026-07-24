@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { FlowIntensity, MoodType, DbPeriodLog } from '@/lib/types/database';
 import { X, Check, Droplets, Smile, Activity, RotateCcw } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -35,6 +36,7 @@ const SYMPTOM_LIST = ['Cramps', 'Bloating', 'Headache', 'Backache', 'Acne', 'Cra
 type NavSection = 'period' | 'mood' | 'symptoms';
 
 export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }: Props) {
+  const [mounted, setMounted] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<NavSection>('period');
   const [isPeriodDay, setIsPeriodDay] = useState<boolean>(true);
   const [flowDay, setFlowDay] = useState<number>(1);
@@ -42,6 +44,10 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
   const [mood, setMood] = useState<MoodType | undefined>('happy');
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>('');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Prevent background page body scroll when modal is open
   useEffect(() => {
@@ -73,7 +79,7 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
     }
   }, [initialLog, dateStr]);
 
-  if (!isOpen || !dateStr) return null;
+  if (!isOpen || !dateStr || !mounted) return null;
 
   const toggleSymptom = (tag: string) => {
     setSelectedSymptoms((prev) =>
@@ -103,8 +109,8 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="h-14 px-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
@@ -335,6 +341,7 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Loader2, Save, CheckCircle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
@@ -25,6 +26,12 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
   const [savingNotes, setSavingNotes] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -116,12 +123,12 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
     router.push('/workout');
   }
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
       <div 
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-slide-up"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -145,7 +152,7 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto scrollbar-hide p-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 text-slate-300 animate-spin" />
@@ -229,6 +236,7 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { createClient } from '@/lib/supabase/client';
 import { updateUserProfile } from '@/lib/api/profile';
 import type { GenderType, BloodGroupType } from '@/lib/types/database';
@@ -24,6 +25,7 @@ const STEPS_NAV = [
 ];
 
 export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
+  const [mounted, setMounted] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1);
   const [gender, setGender] = useState<GenderType | null>(null);
   const [bloodGroup, setBloodGroup] = useState<BloodGroupType | null>(null);
@@ -31,6 +33,10 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
   const [age, setAge] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Prevent background page body scroll when modal is open
   useEffect(() => {
@@ -44,7 +50,7 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleNext = () => {
     setError(null);
@@ -92,8 +98,8 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[85vh]">
         {/* Header Bar */}
         <div className="h-14 px-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
@@ -360,6 +366,7 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
