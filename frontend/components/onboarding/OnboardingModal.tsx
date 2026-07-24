@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { updateUserProfile } from '@/lib/api/profile';
 import type { GenderType, BloodGroupType } from '@/lib/types/database';
@@ -31,6 +31,18 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
   const [age, setAge] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Prevent background page body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -82,7 +94,7 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[85vh]">
         {/* Header Bar */}
         <div className="h-14 px-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center gap-3">
@@ -102,10 +114,10 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
           </div>
         </div>
 
-        {/* Modal Body: Left Step Navigation Sidebar + Main Panel */}
+        {/* Modal Body */}
         <div className="flex-1 flex flex-col sm:flex-row min-h-0 overflow-hidden">
-          {/* Left Navigation Steps (TradingView Style) */}
-          <div className="w-full sm:w-48 bg-slate-50/70 border-b sm:border-b-0 sm:border-r border-slate-100 p-2 sm:p-3 shrink-0 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-y-auto">
+          {/* Left Step Navigation Sidebar */}
+          <div className="w-full sm:w-48 bg-slate-50/70 border-b sm:border-b-0 sm:border-r border-slate-100 p-2 sm:p-3 shrink-0 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-y-auto scrollbar-hide">
             {STEPS_NAV.map(({ step: sNum, label, icon: Icon }) => {
               const isActive = step === sNum;
               const isDone = step > sNum;
@@ -135,8 +147,7 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
           </div>
 
           {/* Main Step Content */}
-          <div className="flex-1 p-5 sm:p-6 overflow-y-auto space-y-6">
-            {/* STEP 1: Gender */}
+          <div className="flex-1 p-5 sm:p-6 overflow-y-auto scrollbar-hide space-y-5">
             {step === 1 && (
               <div className="space-y-4 animate-fade-in">
                 <div>
@@ -180,7 +191,6 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
               </div>
             )}
 
-            {/* STEP 2: Blood Group */}
             {step === 2 && (
               <div className="space-y-4 animate-fade-in">
                 <div>
@@ -211,7 +221,6 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
               </div>
             )}
 
-            {/* STEP 3: Weight Goal */}
             {step === 3 && (
               <div className="space-y-4 animate-fade-in">
                 <div>
@@ -235,7 +244,6 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
               </div>
             )}
 
-            {/* STEP 4: Age */}
             {step === 4 && (
               <div className="space-y-4 animate-fade-in">
                 <div>
@@ -255,7 +263,6 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
               </div>
             )}
 
-            {/* STEP 5: Overview / Tutorial */}
             {step === 5 && (
               <div className="space-y-4 animate-fade-in">
                 <div>

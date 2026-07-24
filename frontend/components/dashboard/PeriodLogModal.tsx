@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { FlowIntensity, MoodType, DbPeriodLog } from '@/lib/types/database';
-import { X, Check, Droplets, Smile, Activity, FileText, RotateCcw } from 'lucide-react';
+import { X, Check, Droplets, Smile, Activity, RotateCcw } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -42,6 +42,18 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
   const [mood, setMood] = useState<MoodType | undefined>('happy');
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>('');
+
+  // Prevent background page body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (initialLog) {
@@ -93,8 +105,8 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
-        {/* TradingView-Style Header */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/20 max-w-2xl w-full overflow-hidden flex flex-col max-h-[85vh]">
+        {/* Header */}
         <div className="h-14 px-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
@@ -115,10 +127,10 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
           </button>
         </div>
 
-        {/* Modal Body: Left Sidebar + Content (TradingView Layout) */}
+        {/* Modal Body */}
         <div className="flex-1 flex flex-col sm:flex-row min-h-0 overflow-hidden">
-          {/* Left Sidebar Menu */}
-          <div className="w-full sm:w-48 bg-slate-50/70 border-b sm:border-b-0 sm:border-r border-slate-100 p-2 sm:p-3 shrink-0 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-y-auto">
+          {/* Left Navigation */}
+          <div className="w-full sm:w-48 bg-slate-50/70 border-b sm:border-b-0 sm:border-r border-slate-100 p-2 sm:p-3 shrink-0 flex sm:flex-col gap-1 overflow-x-auto sm:overflow-y-auto scrollbar-hide">
             <button
               onClick={() => setActiveSection('period')}
               className={cn(
@@ -157,12 +169,10 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
             </button>
           </div>
 
-          {/* Section Main Content */}
-          <div className="flex-1 p-5 sm:p-6 overflow-y-auto space-y-6">
-            {/* SECTION 1: Period Active & Flow */}
+          {/* Main Section Content */}
+          <div className="flex-1 p-5 sm:p-6 overflow-y-auto scrollbar-hide space-y-5">
             {activeSection === 'period' && (
-              <div className="space-y-6 animate-fade-in">
-                {/* Period Active Switcher */}
+              <div className="space-y-5 animate-fade-in">
                 <div className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 flex items-center justify-between">
                   <div>
                     <label className="text-xs font-bold text-slate-900 block">Period Active on Date</label>
@@ -186,11 +196,11 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                 </div>
 
                 {isPeriodDay && (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                       Flow Intensity & Color Gradient Fading (Days 1–7)
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2.5">
                       {FLOW_OPTIONS.map((f, idx) => {
                         const isSelected = flowIntensity === f.value;
                         return (
@@ -201,9 +211,9 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                               setFlowDay(idx === 0 ? 1 : idx === 1 ? 3 : idx === 2 ? 5 : 7);
                             }}
                             className={cn(
-                              'p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
+                              'p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between',
                               isSelected
-                                ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
+                                ? 'border-slate-900 bg-slate-900 text-white shadow-sm font-bold'
                                 : 'border-slate-200/80 bg-white hover:border-slate-300 text-slate-800'
                             )}
                           >
@@ -224,13 +234,12 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
               </div>
             )}
 
-            {/* SECTION 2: Daily Mood */}
             {activeSection === 'mood' && (
               <div className="space-y-4 animate-fade-in">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                   Select Daily Mood Emoji
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2.5">
                   {MOOD_OPTIONS.map((m) => {
                     const isSelected = mood === m.value;
                     return (
@@ -238,7 +247,7 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                         key={m.value}
                         onClick={() => setMood(m.value)}
                         className={cn(
-                          'p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-3',
+                          'p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5',
                           isSelected
                             ? 'border-slate-900 bg-slate-900 text-white shadow-sm font-bold'
                             : 'border-slate-200/80 bg-white hover:border-slate-300 text-slate-700'
@@ -253,14 +262,13 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
               </div>
             )}
 
-            {/* SECTION 3: Symptoms & Notes */}
             {activeSection === 'symptoms' && (
-              <div className="space-y-5 animate-fade-in">
+              <div className="space-y-4 animate-fade-in">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 block">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">
                     Symptom Badges
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {SYMPTOM_LIST.map((tag) => {
                       const selected = selectedSymptoms.includes(tag);
                       return (
@@ -283,14 +291,14 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
                     Daily Notes
                   </label>
                   <textarea
-                    placeholder="Enter any additional cycle notes or notes..."
+                    placeholder="Enter any additional cycle notes..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200/80 bg-white px-3.5 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all h-24 resize-none"
+                    className="w-full rounded-xl border border-slate-200/80 bg-white px-3.5 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all h-20 resize-none"
                   />
                 </div>
               </div>
@@ -298,7 +306,7 @@ export function PeriodLogModal({ isOpen, dateStr, initialLog, onClose, onSave }:
           </div>
         </div>
 
-        {/* TradingView-Style Footer Action Bar */}
+        {/* Footer */}
         <div className="h-16 px-6 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between shrink-0">
           <button
             type="button"

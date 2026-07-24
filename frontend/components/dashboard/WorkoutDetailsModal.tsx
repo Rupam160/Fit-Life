@@ -27,6 +27,17 @@ export function WorkoutDetailsModal({ dateStr, isOpen, onClose }: WorkoutDetails
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (!isOpen || !dateStr) return;
 
     let isMounted = true;
