@@ -14,35 +14,33 @@ export interface ProfileUpdateInput {
 }
 
 export async function getProfile(supabase: SupabaseClient, userId: string): Promise<DbUser | null> {
-  const { data, error } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const meta = user.user_metadata || {};
+
+  // Try fetching from users table
+  const { data: dbUser } = await supabase
     .from('users')
     .select('*')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
-    // Fallback to user metadata if users table fetch fails
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
-    const meta = user.user_metadata || {};
-    return {
-      id: userId,
-      email: user.email || '',
-      name: meta.name || user.email?.split('@')[0] || 'User',
-      avatar_url: meta.avatar_url || null,
-      current_weight: meta.current_weight || null,
-      target_weight: meta.target_weight || null,
-      goal: meta.goal || null,
-      gender: meta.gender || null,
-      blood_group: meta.blood_group || null,
-      age: meta.age || null,
-      onboarded: meta.onboarded ?? false,
-      created_at: user.created_at || new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  }
-
-  return data as DbUser;
+  return {
+    id: userId,
+    email: user.email || '',
+    name: dbUser?.name || meta.name || user.email?.split('@')[0] || 'User',
+    avatar_url: dbUser?.avatar_url || meta.avatar_url || null,
+    current_weight: dbUser?.current_weight ?? meta.current_weight ?? null,
+    target_weight: dbUser?.target_weight ?? meta.target_weight ?? null,
+    goal: dbUser?.goal ?? meta.goal ?? null,
+    gender: meta.gender ?? null,
+    blood_group: meta.blood_group ?? null,
+    age: meta.age ?? null,
+    onboarded: meta.onboarded ?? false,
+    created_at: user.created_at || new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
 }
 
 export async function updateProfile(
@@ -51,14 +49,30 @@ export async function updateProfile(
   updates: ProfileUpdateInput
 ): Promise<{ error: string | null }> {
   try {
-    await supabase.auth.updateUser({ data: updates });
+    // 1. Update user_metadata in Supabase Auth (always works safely)
+    const { error: authError } = await supabase.auth.updateUser({ data: updates });
+    if (authError) {
+      return { error: authError.message };
+    }
 
-    const { error } = await supabase
-      .from('users')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', userId);
+    // 2. Safely attempt to update standard columns in 'users' table if present
+    try {
+      const dbUpdates: Record<string, any> = { updated_at: new Date().toISOString() };
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.current_weight !== undefined) dbUpdates.current_weight = updates.current_weight;
+      if (updates.target_weight !== undefined) dbUpdates.target_weight = updates.target_weight;
+      if (updates.goal !== undefined) dbUpdates.goal = updates.goal;
+      if (updates.avatar_url !== undefined) dbUpdates.avatar_url = updates.avatar_url;
 
-    return { error: error?.message || null };
+      await supabase
+        .from('users')
+        .update(dbUpdates)
+        .eq('id', userId);
+    } catch (e) {
+      // Catch and swallow table schema mismatch errors gracefully
+    }
+
+    return { error: null };
   } catch (err: any) {
     return { error: err?.message || 'Failed to update profile' };
   }
@@ -96,22 +110,7 @@ export async function getUserProfile(
   userId: string
 ): Promise<Partial<DbUser>> {
   const profile = await getProfile(supabase, userId);
-  if (profile) return profile;
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const meta = user?.user_metadata || {};
-
-  return {
-    id: userId,
-    email: user?.email || '',
-    name: meta.name || user?.email?.split('@')[0] || 'User',
-    gender: meta.gender || null,
-    blood_group: meta.blood_group || null,
-    age: meta.age || null,
-    target_weight: meta.target_weight || null,
-    current_weight: meta.current_weight || null,
-    onboarded: meta.onboarded ?? false,
-  };
+  return profile || {};
 }
 
 export async function updateUserProfile(
