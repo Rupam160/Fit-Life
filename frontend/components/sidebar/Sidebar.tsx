@@ -20,6 +20,8 @@ import {
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
+import { useState, useEffect } from 'react';
+
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
@@ -44,6 +46,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+  }, []);
+
+  const isCatAdmin = userEmail?.toLowerCase() === 'rupambarat18@gmail.com';
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -123,33 +134,35 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           );
         })}
 
-        {/* Divider */}
-        <div className={cn('my-2 border-t border-slate-100', collapsed && 'mx-2')} />
-
         {/* CAT Prep Section */}
-        {!collapsed && (
-          <p className="px-3 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-            CAT Prep
-          </p>
+        {isCatAdmin && (
+          <>
+            <div className={cn('my-2 border-t border-slate-100', collapsed && 'mx-2')} />
+            {!collapsed && (
+              <p className="px-3 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                CAT Prep
+              </p>
+            )}
+            {catNavItems.map(({ href, label, icon: Icon }) => {
+              const isActive = pathname === href || pathname.startsWith(href + '/');
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    'sidebar-link',
+                    isActive && 'sidebar-link-active',
+                    collapsed && 'justify-center px-2'
+                  )}
+                  title={collapsed ? label : undefined}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span>{label}</span>}
+                </Link>
+              );
+            })}
+          </>
         )}
-        {catNavItems.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href || pathname.startsWith(href + '/');
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'sidebar-link',
-                isActive && 'sidebar-link-active',
-                collapsed && 'justify-center px-2'
-              )}
-              title={collapsed ? label : undefined}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              {!collapsed && <span>{label}</span>}
-            </Link>
-          );
-        })}
       </nav>
 
       {/* Sign out */}

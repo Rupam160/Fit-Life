@@ -5,15 +5,28 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Dumbbell, User, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/workout', label: 'Workout', icon: Dumbbell },
-  { href: '/cat/dashboard', label: 'CAT Prep', icon: BookOpen },
-  { href: '/profile', label: 'Profile', icon: User },
-];
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export function MobileNav() {
   const pathname = usePathname();
+  const supabase = createClient();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+  }, []);
+
+  const isCatAdmin = userEmail?.toLowerCase() === 'rupambarat18@gmail.com';
+
+  const navItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/workout', label: 'Workout', icon: Dumbbell },
+    ...(isCatAdmin ? [{ href: '/cat/dashboard', label: 'CAT Prep', icon: BookOpen }] : []),
+    { href: '/profile', label: 'Profile', icon: User },
+  ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] pb-safe">

@@ -4,6 +4,10 @@
 
 export type WorkoutType = 'push' | 'pull' | 'legs' | 'cardio' | 'rest';
 export type GoalType = 'bulking' | 'cutting' | 'maintaining';
+export type GenderType = 'male' | 'female';
+export type BloodGroupType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+export type FlowIntensity = 'heavy' | 'medium' | 'light' | 'spotting';
+export type MoodType = 'happy' | 'low' | 'irritable' | 'fatigued' | 'crampy' | 'energetic';
 
 export interface DbUser {
   id: string;
@@ -13,8 +17,25 @@ export interface DbUser {
   current_weight: number | null;
   target_weight: number | null;
   goal: GoalType | null;
+  gender: GenderType | null;
+  blood_group: BloodGroupType | null;
+  age: number | null;
+  onboarded: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface DbPeriodLog {
+  id?: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  is_period_day: boolean;
+  flow_day?: number; // 1 to 7
+  flow_intensity?: FlowIntensity;
+  mood?: MoodType;
+  symptoms?: string[];
+  notes?: string;
+  created_at?: string;
 }
 
 export interface DbWorkout {
