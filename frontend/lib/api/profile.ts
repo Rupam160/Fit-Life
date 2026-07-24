@@ -1,11 +1,15 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import type { DbUser, GenderType, BloodGroupType, GoalType } from '../types/database';
-import type { ProfileUpdate } from '../types/app';
 
-export interface ProfileUpdateInput extends ProfileUpdate {
-  gender?: GenderType;
-  blood_group?: BloodGroupType;
-  age?: number;
+export interface ProfileUpdateInput {
+  name?: string | null;
+  current_weight?: number | null;
+  target_weight?: number | null;
+  goal?: GoalType | null;
+  avatar_url?: string | null;
+  gender?: GenderType | null;
+  blood_group?: BloodGroupType | null;
+  age?: number | null;
   onboarded?: boolean;
 }
 
@@ -44,7 +48,7 @@ export async function getProfile(supabase: SupabaseClient, userId: string): Prom
 export async function updateProfile(
   supabase: SupabaseClient,
   userId: string,
-  updates: ProfileUpdate
+  updates: ProfileUpdateInput
 ): Promise<{ error: string | null }> {
   try {
     await supabase.auth.updateUser({ data: updates });

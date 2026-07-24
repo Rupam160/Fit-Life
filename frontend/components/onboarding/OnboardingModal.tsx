@@ -57,10 +57,10 @@ export function OnboardingModal({ isOpen, userId, onComplete }: Props) {
     setIsLoading(true);
     const supabase = createClient();
     const res = await updateUserProfile(supabase, userId, {
-      gender: gender ?? undefined,
-      blood_group: bloodGroup ?? undefined,
-      target_weight: targetWeight ? Number(targetWeight) : undefined,
-      age: age ? Number(age) : undefined,
+      gender: gender ?? null,
+      blood_group: bloodGroup ?? null,
+      target_weight: targetWeight ? Number(targetWeight) : null,
+      age: age ? Number(age) : null,
       onboarded: true,
     });
 
