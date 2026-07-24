@@ -59,7 +59,7 @@ export default function LoginPage() {
           <div className="w-9 h-9 bg-slate-800 rounded-xl flex items-center justify-center">
             <Dumbbell className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-semibold text-slate-800">FitTrack Pro</span>
+          <span className="text-xl font-semibold text-slate-800">Fit Life</span>
         </div>
 
         {/* Card */}

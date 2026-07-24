@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { LandingPageClient } from '@/components/landing/LandingPageClient';
 
 export const metadata = {
-  title: 'FitTrack Pro — Fitness & Female Health Tracking Platform',
+  title: 'Fit Life — Fitness & Female Health Tracking Platform',
   description: 'Track workouts, Progressive volume charts, calendar consistency heatmaps, and female period & mood cycle tracking.',
 };
 

@@ -18,7 +18,7 @@ import type { WorkoutType } from '@/lib/types/database';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Dashboard — FitTrack Pro',
+  title: 'Dashboard — Fit Life',
   description: 'View your workout streaks, calendar, calorie trends, and health insights.',
 };
 

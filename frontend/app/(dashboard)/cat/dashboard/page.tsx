@@ -6,7 +6,7 @@ import { CatDashboardClient } from '@/components/cat/CatDashboardClient';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'CAT Dashboard | FitTrack Pro',
+  title: 'CAT Dashboard | Fit Life',
   description: 'Track your CAT preparation progress, streaks, and performance analytics.',
 };
 

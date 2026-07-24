@@ -6,7 +6,7 @@ import { ProfileForm } from '@/components/profile/ProfileForm';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 
 export const metadata = {
-  title: 'Profile — FitTrack Pro',
+  title: 'Profile — Fit Life',
   description: 'Update your profile, weight, and fitness goals.',
 };
 

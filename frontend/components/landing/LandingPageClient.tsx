@@ -40,7 +40,7 @@ export function LandingPageClient({ isLoggedIn }: LandingPageProps) {
               <Dumbbell className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-              FitTrack Pro
+              Fit Life
             </span>
           </div>
 
@@ -131,7 +131,7 @@ export function LandingPageClient({ isLoggedIn }: LandingPageProps) {
                   <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                 </div>
-                <span className="text-xs text-slate-500 font-mono">fittrack-pro.com/dashboard</span>
+                <span className="text-xs text-slate-500 font-mono">fitlife.app/dashboard</span>
                 <div className="w-12" />
               </div>
 
@@ -334,9 +334,9 @@ export function LandingPageClient({ isLoggedIn }: LandingPageProps) {
             <div className="w-6 h-6 rounded-lg bg-rose-500 flex items-center justify-center">
               <Dumbbell className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-slate-300">FitTrack Pro</span>
+            <span className="font-bold text-slate-300">Fit Life</span>
           </div>
-          <p>© {new Date().getFullYear()} FitTrack Pro. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Fit Life. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/login" className="hover:text-slate-300">Login</Link>
             <Link href="/signup" className="hover:text-slate-300">Sign Up</Link>

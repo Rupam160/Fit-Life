@@ -1,5 +1,5 @@
 // ============================================================
-// FitTrack Pro — App-level Types
+// Fit Life — App-level Types
 // ============================================================
 
 import type { WorkoutType } from './database';

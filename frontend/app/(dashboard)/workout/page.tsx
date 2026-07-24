@@ -4,7 +4,7 @@ import { WorkoutLogger } from '@/components/workout/WorkoutLogger';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 
 export const metadata = {
-  title: 'Workout — FitTrack Pro',
+  title: 'Workout — Fit Life',
   description: 'Log your workout sets, reps, and weights.',
 };
 

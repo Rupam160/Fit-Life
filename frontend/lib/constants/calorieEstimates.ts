@@ -1,5 +1,5 @@
 // ============================================================
-// FitTrack Pro — Calorie Estimates
+// Fit Life — Calorie Estimates
 // ============================================================
 
 import type { WorkoutType } from '../types/database';

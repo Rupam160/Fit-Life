@@ -77,7 +77,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center shrink-0">
               <Dumbbell className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm font-semibold text-slate-800 truncate">FitTrack Pro</span>
+            <span className="text-sm font-semibold text-slate-800 truncate">Fit Life</span>
           </div>
         )}
         {collapsed && (

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
-  title: 'FitTrack Pro — Gym Tracker',
-  description: 'Track your workouts, streaks, and progress with FitTrack Pro.',
+  title: 'Fit Life — Gym & Health Tracker',
+  description: 'Track your workouts, streaks, period cycle, and progress with Fit Life.',
 };
 
 export default function RootLayout({

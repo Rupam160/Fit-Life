@@ -1,5 +1,5 @@
 // ============================================================
-// FitTrack Pro — Supabase Database Types
+// Fit Life — Supabase Database Types
 // ============================================================
 
 export type WorkoutType = 'push' | 'pull' | 'legs' | 'cardio' | 'rest';
