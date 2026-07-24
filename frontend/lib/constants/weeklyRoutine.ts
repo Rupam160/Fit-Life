@@ -1,133 +1,104 @@
-// ============================================================
-// FitTrack Pro — Weekly Routine Constants
-// EXACT routine as specified
-// ============================================================
-
 import type { WeeklyRoutine } from '../types/app';
 
 export const WEEKLY_ROUTINE: WeeklyRoutine = {
-  // Sunday — Cardio
+  // Sunday — REST
   0: {
-    type: 'cardio',
-    label: 'Cardio',
-    exercises: [
-      {
-        name: '4km Run',
-        sets: [{ weight_kg: null, reps_min: 1, reps_max: 1 }],
-      },
-    ],
+    type: 'rest',
+    label: 'Rest Day',
+    exercises: [],
   },
 
-  // Monday — Push
+  // Monday — Push A
   1: {
     type: 'push',
-    label: 'Push',
+    label: 'Push A (Chest, Shoulders, Triceps)',
     exercises: [
-      {
-        name: 'Bench Press',
-        sets: [
-          { weight_kg: 15, reps_min: 15, reps_max: 15 },
-          { weight_kg: 20, reps_min: 12, reps_max: 12 },
-          { weight_kg: 25, reps_min: 8,  reps_max: 10 },
-          { weight_kg: 27.5, reps_min: 6, reps_max: 6 },
-        ],
-      },
-      { name: 'Incline DB Press',  sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Pec Fly',           sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Skull Crushers',    sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Rope Pushdown',     sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Cable Crunch',      sets: [{ weight_kg: null, reps_min: 15, reps_max: 20 }] },
-      { name: 'Dragon Flag',       sets: [{ weight_kg: null, reps_min: 5,  reps_max: 8  }] },
+      { name: 'Dumbbell Bench Press', sets: [{ weight_kg: 15, reps_min: 8, reps_max: 10 }, { weight_kg: 17.5, reps_min: 8, reps_max: 10 }, { weight_kg: 20, reps_min: 8, reps_max: 10 }] },
+      { name: 'Seated Dumbbell Shoulder Press', sets: [{ weight_kg: 10, reps_min: 8, reps_max: 10 }, { weight_kg: 12, reps_min: 8, reps_max: 10 }, { weight_kg: 12, reps_min: 8, reps_max: 10 }] },
+      { name: 'Incline Dumbbell Press', sets: [{ weight_kg: 12, reps_min: 10, reps_max: 12 }, { weight_kg: 14, reps_min: 10, reps_max: 12 }, { weight_kg: 14, reps_min: 10, reps_max: 12 }] },
+      { name: 'Cable / Machine Chest Flyes', sets: [{ weight_kg: 15, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }] },
+      { name: 'Dumbbell Lateral Raises', sets: [{ weight_kg: 6, reps_min: 12, reps_max: 15 }, { weight_kg: 8, reps_min: 12, reps_max: 15 }, { weight_kg: 8, reps_min: 12, reps_max: 15 }] },
+      { name: 'Tricep Rope Pushdowns', sets: [{ weight_kg: 15, reps_min: 10, reps_max: 12 }, { weight_kg: 20, reps_min: 10, reps_max: 12 }, { weight_kg: 20, reps_min: 10, reps_max: 12 }] },
     ],
   },
 
-  // Tuesday — Pull
+  // Tuesday — Pull A
   2: {
     type: 'pull',
-    label: 'Pull',
+    label: 'Pull A (Back, Rear Delts, Biceps)',
     exercises: [
-      { name: 'Weighted Pull-ups (7.5kg)', sets: [{ weight_kg: 7.5, reps_min: 6, reps_max: 8 }] },
-      { name: 'Straight Arm Pulldown',     sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Dumbbell Row',              sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Horizontal Row',            sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Pelvic Tilts',             sets: [{ weight_kg: null, reps_min: 15, reps_max: 20 }] },
-      { name: 'Barbell Curl',             sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Hammer Curl',             sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Concentration Curl',      sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
+      { name: 'Lat Pulldown', sets: [{ weight_kg: 25, reps_min: 8, reps_max: 10 }, { weight_kg: 30, reps_min: 8, reps_max: 10 }, { weight_kg: 35, reps_min: 8, reps_max: 10 }] },
+      { name: 'Seated Cable Row', sets: [{ weight_kg: 25, reps_min: 10, reps_max: 12 }, { weight_kg: 30, reps_min: 10, reps_max: 12 }, { weight_kg: 35, reps_min: 10, reps_max: 12 }] },
+      { name: 'Dumbbell Single-Arm Row', sets: [{ weight_kg: 12, reps_min: 8, reps_max: 10 }, { weight_kg: 14, reps_min: 8, reps_max: 10 }, { weight_kg: 16, reps_min: 8, reps_max: 10 }] },
+      { name: 'Face Pulls', sets: [{ weight_kg: 15, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }] },
+      { name: 'Standing Dumbbell Bicep Curls', sets: [{ weight_kg: 8, reps_min: 10, reps_max: 12 }, { weight_kg: 10, reps_min: 10, reps_max: 12 }, { weight_kg: 10, reps_min: 10, reps_max: 12 }] },
+      { name: 'Hammer Curls', sets: [{ weight_kg: 8, reps_min: 10, reps_max: 12 }, { weight_kg: 10, reps_min: 10, reps_max: 12 }, { weight_kg: 10, reps_min: 10, reps_max: 12 }] },
     ],
   },
 
-  // Wednesday — Legs
+  // Wednesday — Legs A
   3: {
     type: 'legs',
-    label: 'Legs',
+    label: 'Legs A (Quads, Hamstrings, Calves, Abs)',
     exercises: [
-      { name: 'Squats',               sets: [{ weight_kg: null, reps_min: 8,  reps_max: 12 }] },
-      { name: 'Bulgarian Split Squat',sets: [{ weight_kg: null, reps_min: 8,  reps_max: 10 }] },
-      { name: 'Leg Extension',        sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Calf Raise',           sets: [{ weight_kg: null, reps_min: 15, reps_max: 20 }] },
-      { name: 'Shoulder Press',       sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Lateral Raise',        sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Rear Delt Fly',        sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
+      { name: 'Goblet Squat', sets: [{ weight_kg: 12, reps_min: 8, reps_max: 10 }, { weight_kg: 16, reps_min: 8, reps_max: 10 }, { weight_kg: 20, reps_min: 8, reps_max: 10 }] },
+      { name: 'Leg Press Machine', sets: [{ weight_kg: 50, reps_min: 10, reps_max: 12 }, { weight_kg: 70, reps_min: 10, reps_max: 12 }, { weight_kg: 80, reps_min: 10, reps_max: 12 }] },
+      { name: 'Seated Leg Curl Machine', sets: [{ weight_kg: 25, reps_min: 10, reps_max: 12 }, { weight_kg: 30, reps_min: 10, reps_max: 12 }, { weight_kg: 35, reps_min: 10, reps_max: 12 }] },
+      { name: 'Standing Calf Raises', sets: [{ weight_kg: 20, reps_min: 12, reps_max: 15 }, { weight_kg: 25, reps_min: 12, reps_max: 15 }, { weight_kg: 30, reps_min: 12, reps_max: 15 }] },
+      { name: 'Hanging Knee Raises / Machine Crunches', sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }, { weight_kg: null, reps_min: 12, reps_max: 15 }, { weight_kg: null, reps_min: 12, reps_max: 15 }] },
     ],
   },
 
-  // Thursday — Push (variation)
+  // Thursday — Push B
   4: {
     type: 'push',
-    label: 'Push (Variation)',
+    label: 'Push B (Chest, Shoulders, Triceps)',
     exercises: [
-      { name: 'Incline Bench Press',  sets: [{ weight_kg: null, reps_min: 8,  reps_max: 12 }] },
-      { name: 'DB Shoulder Press',    sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Cable Fly',            sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Overhead Tricep Ext.', sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Tricep Pushdown',      sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Ab Wheel Rollout',     sets: [{ weight_kg: null, reps_min: 8,  reps_max: 10 }] },
+      { name: 'Chest Press Machine', sets: [{ weight_kg: 25, reps_min: 8, reps_max: 10 }, { weight_kg: 30, reps_min: 8, reps_max: 10 }, { weight_kg: 35, reps_min: 8, reps_max: 10 }] },
+      { name: 'Standing Dumbbell Overhead Press', sets: [{ weight_kg: 10, reps_min: 8, reps_max: 10 }, { weight_kg: 12, reps_min: 8, reps_max: 10 }, { weight_kg: 14, reps_min: 8, reps_max: 10 }] },
+      { name: 'Incline Machine Press', sets: [{ weight_kg: 20, reps_min: 10, reps_max: 12 }, { weight_kg: 25, reps_min: 10, reps_max: 12 }, { weight_kg: 30, reps_min: 10, reps_max: 12 }] },
+      { name: 'Machine Lateral Raises', sets: [{ weight_kg: 15, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }] },
+      { name: 'Overhead Cable Tricep Extension', sets: [{ weight_kg: 15, reps_min: 10, reps_max: 12 }, { weight_kg: 20, reps_min: 10, reps_max: 12 }, { weight_kg: 20, reps_min: 10, reps_max: 12 }] },
+      { name: 'Bench Dips', sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }, { weight_kg: null, reps_min: 10, reps_max: 12 }, { weight_kg: null, reps_min: 10, reps_max: 12 }] },
     ],
   },
 
-  // Friday — Pull (same)
+  // Friday — Pull B
   5: {
     type: 'pull',
-    label: 'Pull',
+    label: 'Pull B (Back, Rear Delts, Biceps)',
     exercises: [
-      { name: 'Weighted Pull-ups (7.5kg)', sets: [{ weight_kg: 7.5, reps_min: 6, reps_max: 8 }] },
-      { name: 'Straight Arm Pulldown',     sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Dumbbell Row',              sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Horizontal Row',            sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Pelvic Tilts',             sets: [{ weight_kg: null, reps_min: 15, reps_max: 20 }] },
-      { name: 'Barbell Curl',             sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Hammer Curl',             sets: [{ weight_kg: null, reps_min: 10, reps_max: 12 }] },
-      { name: 'Concentration Curl',      sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
+      { name: 'Supported T-Bar Row / Chest-Supported Row', sets: [{ weight_kg: 20, reps_min: 8, reps_max: 10 }, { weight_kg: 25, reps_min: 8, reps_max: 10 }, { weight_kg: 30, reps_min: 8, reps_max: 10 }] },
+      { name: 'Close-Grip Lat Pulldown', sets: [{ weight_kg: 25, reps_min: 10, reps_max: 12 }, { weight_kg: 30, reps_min: 10, reps_max: 12 }, { weight_kg: 35, reps_min: 10, reps_max: 12 }] },
+      { name: 'Machine Back Extension', sets: [{ weight_kg: 20, reps_min: 10, reps_max: 12 }, { weight_kg: 30, reps_min: 10, reps_max: 12 }, { weight_kg: 40, reps_min: 10, reps_max: 12 }] },
+      { name: 'Reverse Machine Flyes', sets: [{ weight_kg: 15, reps_min: 12, reps_max: 15 }, { weight_kg: 20, reps_min: 12, reps_max: 15 }, { weight_kg: 25, reps_min: 12, reps_max: 15 }] },
+      { name: 'EZ-Bar Bicep Curls', sets: [{ weight_kg: 15, reps_min: 10, reps_max: 12 }, { weight_kg: 20, reps_min: 10, reps_max: 12 }, { weight_kg: 20, reps_min: 10, reps_max: 12 }] },
+      { name: 'Incline Dumbbell Bicep Curls', sets: [{ weight_kg: 8, reps_min: 10, reps_max: 12 }, { weight_kg: 10, reps_min: 10, reps_max: 12 }, { weight_kg: 10, reps_min: 10, reps_max: 12 }] },
     ],
   },
 
-  // Saturday — Legs (variation)
+  // Saturday — Legs B
   6: {
     type: 'legs',
-    label: 'Legs (Variation)',
+    label: 'Legs B (Glutes, Hamstrings, Quads, Core)',
     exercises: [
-      { name: 'Romanian Deadlift',    sets: [{ weight_kg: null, reps_min: 8,  reps_max: 12 }] },
-      { name: 'Leg Press',            sets: [{ weight_kg: null, reps_min: 10, reps_max: 15 }] },
-      { name: 'Leg Curl',             sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Calf Raise',           sets: [{ weight_kg: null, reps_min: 15, reps_max: 20 }] },
-      { name: 'Lateral Raise',        sets: [{ weight_kg: null, reps_min: 12, reps_max: 15 }] },
-      { name: 'Face Pull',            sets: [{ weight_kg: null, reps_min: 15, reps_max: 20 }] },
+      { name: 'Dumbbell Romanian Deadlift (RDL)', sets: [{ weight_kg: 16, reps_min: 8, reps_max: 10 }, { weight_kg: 20, reps_min: 8, reps_max: 10 }, { weight_kg: 24, reps_min: 8, reps_max: 10 }] },
+      { name: 'Walking Lunges', sets: [{ weight_kg: 10, reps_min: 10, reps_max: 12 }, { weight_kg: 12, reps_min: 10, reps_max: 12 }, { weight_kg: 14, reps_min: 10, reps_max: 12 }] },
+      { name: 'Leg Extension Machine', sets: [{ weight_kg: 25, reps_min: 12, reps_max: 15 }, { weight_kg: 30, reps_min: 12, reps_max: 15 }, { weight_kg: 35, reps_min: 12, reps_max: 15 }] },
+      { name: 'Seated Calf Raises', sets: [{ weight_kg: 20, reps_min: 12, reps_max: 15 }, { weight_kg: 25, reps_min: 12, reps_max: 15 }, { weight_kg: 30, reps_min: 12, reps_max: 15 }] },
+      { name: 'Plank Hold (30-45 sec)', sets: [{ weight_kg: null, reps_min: 30, reps_max: 45 }, { weight_kg: null, reps_min: 30, reps_max: 45 }, { weight_kg: null, reps_min: 30, reps_max: 45 }] },
     ],
   },
 };
 
-// Helper: get today's routine
 export function getTodayRoutine() {
-  const dayIndex = new Date().getDay(); // 0=Sun, 6=Sat
+  const dayIndex = new Date().getDay();
   return WEEKLY_ROUTINE[dayIndex];
 }
 
-// Helper: get routine for a given day index
 export function getRoutineForDay(dayIndex: number) {
   return WEEKLY_ROUTINE[dayIndex] ?? null;
 }
 
-// Helper: day labels for display
 export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const DAY_FULL_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

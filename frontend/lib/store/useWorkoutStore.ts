@@ -1,9 +1,7 @@
 import { create } from 'zustand';
-import { nanoid } from 'nanoid';
 import type { ExerciseInput, SetInput } from '../types/app';
 import type { WorkoutType } from '../types/database';
 
-// nanoid is tiny and built into modern JS — but we'll use a simple alternative
 function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
@@ -14,10 +12,12 @@ interface WorkoutState {
   exercises: ExerciseInput[];
   isSaving: boolean;
   lastSaved: string | null;
+  isBeginnerMode: boolean;
 
   setDate: (date: string) => void;
   setType: (type: WorkoutType) => void;
   setExercises: (exercises: ExerciseInput[]) => void;
+  setBeginnerMode: (isBeginner: boolean) => void;
 
   addExercise: (name?: string) => void;
   removeExercise: (exerciseId: string) => void;
@@ -47,17 +47,19 @@ const makeEmptyExercise = (name = ''): ExerciseInput => ({
   sets: [makeEmptySet(1)],
 });
 
-export const useWorkoutStore = create<WorkoutState>((set, get) => ({
+export const useWorkoutStore = create<WorkoutState>((set) => ({
   date: today,
   type: 'push',
   exercises: [],
   isSaving: false,
   lastSaved: null,
+  isBeginnerMode: false,
 
   setDate: (date) => set({ date }),
   setType: (type) => set({ type }),
 
   setExercises: (exercises) => set({ exercises }),
+  setBeginnerMode: (isBeginnerMode) => set({ isBeginnerMode }),
 
   addExercise: (name = '') =>
     set((state) => ({
@@ -90,7 +92,6 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
       exercises: state.exercises.map((e) => {
         if (e.id !== exerciseId) return e;
         const filtered = e.sets.filter((s) => s.id !== setId);
-        // Renumber
         return {
           ...e,
           sets: filtered.map((s, i) => ({ ...s, set_number: i + 1 })),
@@ -121,5 +122,6 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
       exercises: [],
       isSaving: false,
       lastSaved: null,
+      isBeginnerMode: false,
     }),
 }));

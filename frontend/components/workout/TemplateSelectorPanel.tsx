@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, RefreshCw, Zap, ShieldCheck, Check, History } from 'lucide-react';
+import { Sparkles, RefreshCw, Zap, ShieldCheck, Check, History, Lock } from 'lucide-react';
 import type { WorkoutType } from '@/lib/types/database';
 import type { ExerciseInput } from '@/lib/types/app';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/lib/constants/routineTemplates';
 import { getLastWorkoutForType } from '@/lib/api/workouts';
 import { createClient } from '@/lib/supabase/client';
+import { useWorkoutStore } from '@/lib/store/useWorkoutStore';
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +29,7 @@ export function TemplateSelectorPanel({ userId, workoutType, currentDate, onAppl
   const [mode, setMode] = useState<Mode>('auto_last');
   const [lastWorkout, setLastWorkout] = useState<any>(null);
   const [loadingLast, setLoadingLast] = useState<boolean>(false);
+  const setBeginnerMode = useWorkoutStore((s) => s.setBeginnerMode);
 
   useEffect(() => {
     if (!userId) return;
@@ -50,6 +52,7 @@ export function TemplateSelectorPanel({ userId, workoutType, currentDate, onAppl
 
   const handleApply = (targetMode: Mode = mode) => {
     if (targetMode === 'auto_last') {
+      setBeginnerMode(false);
       if (lastWorkout && lastWorkout.exercises && lastWorkout.exercises.length > 0) {
         const exercises = convertDbWorkoutToExercises(lastWorkout);
         onApplyTemplate(exercises);
@@ -62,12 +65,14 @@ export function TemplateSelectorPanel({ userId, workoutType, currentDate, onAppl
     }
 
     if (targetMode === 'beginner') {
+      setBeginnerMode(true);
       const exercises = convertDefaultTemplateToExercises(BEGINNER_ROUTINES[workoutType] || []);
       onApplyTemplate(exercises);
       return;
     }
 
     if (targetMode === 'intermediate') {
+      setBeginnerMode(false);
       const exercises = convertDefaultTemplateToExercises(INTERMEDIATE_ROUTINES[workoutType] || []);
       onApplyTemplate(exercises);
       return;
@@ -149,12 +154,15 @@ export function TemplateSelectorPanel({ userId, workoutType, currentDate, onAppl
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShieldCheck className={cn('w-4 h-4', mode === 'beginner' ? 'text-emerald-400' : 'text-emerald-600')} />
-              <span className="text-xs font-bold">Beginner Template</span>
+              <span className="text-xs font-bold">Beginner Mode</span>
             </div>
-            {mode === 'beginner' && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+            <div className="flex items-center gap-1">
+              <Lock className={cn('w-3 h-3', mode === 'beginner' ? 'text-amber-300' : 'text-slate-400')} />
+              {mode === 'beginner' && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+            </div>
           </div>
           <p className={cn('text-[11px]', mode === 'beginner' ? 'text-slate-300' : 'text-slate-400')}>
-            Full-body & fundamental 4-exercise routine for first 1–2 months.
+            Fixed exercise names (Push A/B, Pull A/B, Legs A/B). Edit weights & reps only.
           </p>
         </div>
 
@@ -179,7 +187,7 @@ export function TemplateSelectorPanel({ userId, workoutType, currentDate, onAppl
             {mode === 'intermediate' && <Check className="w-4 h-4 text-amber-300 shrink-0" />}
           </div>
           <p className={cn('text-[11px]', mode === 'intermediate' ? 'text-slate-300' : 'text-slate-400')}>
-            6-exercise volume PPL split for progressive overload.
+            Full volume PPL split for progressive overload. Editable names & weights.
           </p>
         </div>
       </div>
