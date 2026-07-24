@@ -67,14 +67,15 @@ export default async function DashboardPage() {
 
       {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ProgressChart data={volumeProgress} />
+        <ProgressChart initialData={volumeProgress} />
         <CaloriesChart data={weeklyCalories} />
       </div>
 
       {/* Charts row 2 */}
       <div className="grid grid-cols-1 gap-4">
-        <ConsistencyTrend data={consistencyTrend} />
+        <ConsistencyTrend initialData={consistencyTrend} />
       </div>
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -10,12 +11,24 @@ import {
   CartesianGrid,
 } from 'recharts';
 import type { ConsistencyPoint } from '@/lib/types/app';
+import type { TimeFrame } from '@/lib/api/progress';
+import { getConsistencyTrend } from '@/lib/api/calories';
+import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
+
 
 interface ConsistencyTrendProps {
-  data: ConsistencyPoint[];
+  initialData: ConsistencyPoint[];
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+const TIMEFRAMES: { label: string; value: TimeFrame }[] = [
+  { label: '30D', value: '30d' },
+  { label: '3M', value: '3m' },
+  { label: '6M', value: '6m' },
+  { label: 'All', value: 'all' },
+];
+
+function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white border border-slate-100 rounded-xl px-3 py-2 shadow-md text-xs">
@@ -31,24 +44,58 @@ function CustomTooltip({ active, payload, label }: any) {
   );
 }
 
-export function ConsistencyTrend({ data }: ConsistencyTrendProps) {
+export function ConsistencyTrend({ initialData }: ConsistencyTrendProps) {
+  const [timeframe, setTimeframe] = useState<TimeFrame>('30d');
+  const [data, setData] = useState<ConsistencyPoint[]>(initialData);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleTimeframeChange = async (tf: TimeFrame) => {
+    setTimeframe(tf);
+    setIsLoading(true);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const res = await getConsistencyTrend(supabase, user.id, tf);
+      setData(res);
+    }
+    setIsLoading(false);
+  };
+
   const daysWorkedOut = data.filter((d) => d.value === 1).length;
   const pct = data.length > 0 ? Math.round((daysWorkedOut / data.length) * 100) : 0;
 
   return (
     <div className="card-base p-5">
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="section-title">Consistency</h2>
-          <p className="section-subtitle">Last 30 days</p>
+          <p className="section-subtitle">Workout ratio</p>
         </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-slate-800 tabular-nums">{pct}%</p>
-          <p className="text-xs text-slate-400">{daysWorkedOut} / {data.length} days</p>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+            {TIMEFRAMES.map((tf) => (
+              <button
+                key={tf.value}
+                onClick={() => handleTimeframeChange(tf.value)}
+                className={cn(
+                  'px-2.5 py-1 text-xs font-semibold rounded-md transition-all',
+                  timeframe === tf.value
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                )}
+              >
+                {tf.label}
+              </button>
+            ))}
+          </div>
+          <div className="text-right border-l pl-3 border-slate-100">
+            <p className="text-xl font-bold text-slate-800 tabular-nums">{pct}%</p>
+            <p className="text-[11px] text-slate-400">{daysWorkedOut} / {data.length} days</p>
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 h-40">
+      <div className={cn("mt-4 h-40 transition-opacity", isLoading ? "opacity-50" : "opacity-100")}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 4, right: 4, left: -30, bottom: 0 }}>
             <defs>
@@ -81,3 +128,4 @@ export function ConsistencyTrend({ data }: ConsistencyTrendProps) {
     </div>
   );
 }
+

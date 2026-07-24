@@ -15,11 +15,12 @@ export default async function CatDashboardPage() {
 
   const [dash, trend, mocks, dist, weekly] = await Promise.all([
     getDashboardData(supabase as any, user.id),
-    getSubjectTrend(supabase as any, user.id, 30),
+    getSubjectTrend(supabase as any, user.id, '30d'),
     getMockScoreTrend(supabase as any, user.id),
     getStudyDistribution(supabase as any, user.id),
-    getWeeklyConsistency(supabase as any, user.id, 8),
+    getWeeklyConsistency(supabase as any, user.id, '30d'),
   ]);
+
 
   return <CatDashboardClient dash={dash} trend={trend} mocks={mocks} dist={dist} weekly={weekly} />;
 }

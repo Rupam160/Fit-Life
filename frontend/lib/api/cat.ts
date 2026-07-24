@@ -402,22 +402,43 @@ export async function getDashboardData(
   };
 }
 
+import type { TimeFrame } from './progress';
+
 // ─── Chart Data ───────────────────────────────────────────────
 
 export async function getSubjectTrend(
   supabase: SupabaseClient,
   userId: string,
-  days = 30
+  timeframe: TimeFrame = '30d'
 ): Promise<SubjectTrendPoint[]> {
-  const from = format(subDays(new Date(), days - 1), 'yyyy-MM-dd');
+  let from: string;
   const to = format(new Date(), 'yyyy-MM-dd');
+
+  if (timeframe === '3m') {
+    from = format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  } else if (timeframe === '6m') {
+    from = format(subDays(new Date(), 179), 'yyyy-MM-dd');
+  } else if (timeframe === 'all') {
+    const { data: firstLog } = await supabase
+      .from('cat_logs')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    from = firstLog?.date ?? format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  } else {
+    from = format(subDays(new Date(), 29), 'yyyy-MM-dd');
+  }
 
   const { data } = await supabase
     .from('cat_logs')
     .select('date, subject, accuracy')
     .eq('user_id', userId)
     .gte('date', from)
-    .lte('date', to);
+    .lte('date', to)
+    .order('date', { ascending: true });
 
   const logs: any[] = data ?? [];
 
@@ -428,38 +449,54 @@ export async function getSubjectTrend(
     if (l.accuracy !== null) map.get(l.date)![l.subject as CatSubject].push(l.accuracy);
   });
 
-  const result: SubjectTrendPoint[] = [];
-  for (let i = 0; i < days; i++) {
-    const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd');
-    const entry = map.get(date);
-    const avg = (arr: number[]) => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null;
+  const startDate = parseISO(from);
+  const endDate = parseISO(to);
+  const dates: string[] = [];
+  let curr = startDate;
+  while (curr <= endDate) {
+    dates.push(format(curr, 'yyyy-MM-dd'));
+    curr = subDays(curr, -1);
+  }
 
-    result.push({
+  const step = Math.max(1, Math.floor(dates.length / 8));
+
+  return dates.map((date, i) => {
+    const entry = map.get(date);
+    const avg = (arr: number[]) => (arr && arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null);
+
+    return {
       date,
-      label: i % 5 === 0 ? format(parseISO(date), 'MMM d') : '',
+      label: i % step === 0 ? format(parseISO(date), 'MMM d') : '',
       VARC: entry ? avg(entry.VARC) : null,
       LRDI: entry ? avg(entry.LRDI) : null,
       QUANT: entry ? avg(entry.QUANT) : null,
-    });
-  }
-
-  return result;
+    };
+  });
 }
 
 export async function getMockScoreTrend(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  timeframe: TimeFrame = '30d'
 ): Promise<MockScorePoint[]> {
-  const { data } = await supabase
+  let query = supabase
     .from('mock_tests')
     .select('date, varc_score, lrdi_score, quant_score, total_score')
-    .eq('user_id', userId)
-    .order('date', { ascending: true })
-    .limit(15);
+    .eq('user_id', userId);
+
+  if (timeframe === '30d') {
+    query = query.gte('date', format(subDays(new Date(), 29), 'yyyy-MM-dd'));
+  } else if (timeframe === '3m') {
+    query = query.gte('date', format(subDays(new Date(), 89), 'yyyy-MM-dd'));
+  } else if (timeframe === '6m') {
+    query = query.gte('date', format(subDays(new Date(), 179), 'yyyy-MM-dd'));
+  }
+
+  const { data } = await query.order('date', { ascending: true });
 
   const mocks: any[] = data ?? [];
 
-  return mocks.map((m, i) => ({
+  return mocks.map((m) => ({
     date: m.date,
     label: format(parseISO(m.date), 'MMM d'),
     varc: m.varc_score,
@@ -472,9 +509,24 @@ export async function getMockScoreTrend(
 export async function getAccuracyTrend(
   supabase: SupabaseClient,
   userId: string,
-  days = 14
+  timeframe: TimeFrame = '30d'
 ): Promise<AccuracyPoint[]> {
-  const from = format(subDays(new Date(), days - 1), 'yyyy-MM-dd');
+  let from: string;
+  if (timeframe === '3m') from = format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  else if (timeframe === '6m') from = format(subDays(new Date(), 179), 'yyyy-MM-dd');
+  else if (timeframe === 'all') {
+    const { data: firstLog } = await supabase
+      .from('cat_logs')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    from = firstLog?.date ?? format(subDays(new Date(), 29), 'yyyy-MM-dd');
+  } else {
+    from = format(subDays(new Date(), 29), 'yyyy-MM-dd');
+  }
+
   const { data } = await supabase
     .from('cat_logs')
     .select('date, accuracy')
@@ -493,26 +545,39 @@ export async function getAccuracyTrend(
     }
   });
 
-  const result: AccuracyPoint[] = [];
-  for (let i = 0; i < days; i++) {
-    const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd');
+  const startDate = parseISO(from);
+  const endDate = new Date();
+  const dates: string[] = [];
+  let curr = startDate;
+  while (curr <= endDate) {
+    dates.push(format(curr, 'yyyy-MM-dd'));
+    curr = subDays(curr, -1);
+  }
+
+  const step = Math.max(1, Math.floor(dates.length / 8));
+
+  return dates.map((date, i) => {
     const accs = map.get(date) ?? [];
     const avg = accs.length ? Math.round(accs.reduce((a, b) => a + b, 0) / accs.length) : null;
 
-    result.push({
+    return {
       date,
-      label: format(parseISO(date), 'EEE d'),
+      label: i % step === 0 ? format(parseISO(date), 'MMM d') : '',
       accuracy: avg,
-    });
-  }
-  return result;
+    };
+  });
 }
 
 export async function getWeeklyConsistency(
   supabase: SupabaseClient,
   userId: string,
-  weeks = 8
+  timeframe: TimeFrame = '30d'
 ): Promise<WeeklyConsistencyPoint[]> {
+  let weeks = 4;
+  if (timeframe === '3m') weeks = 12;
+  else if (timeframe === '6m') weeks = 24;
+  else if (timeframe === 'all') weeks = 52;
+
   const from = format(subDays(new Date(), weeks * 7), 'yyyy-MM-dd');
 
   const { data } = await supabase
@@ -545,15 +610,18 @@ export async function getWeeklyConsistency(
 
 export async function getStudyDistribution(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  targetMonth: Date = new Date()
 ): Promise<StudyDistribution[]> {
-  const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+  const monthStart = format(startOfMonth(targetMonth), 'yyyy-MM-dd');
+  const monthEnd = format(endOfMonth(targetMonth), 'yyyy-MM-dd');
 
   const { data } = await supabase
     .from('cat_logs')
     .select('subject, time_spent_min')
     .eq('user_id', userId)
-    .gte('date', monthStart);
+    .gte('date', monthStart)
+    .lte('date', monthEnd);
 
   const logs = data ?? [];
 
@@ -574,3 +642,4 @@ export async function getStudyDistribution(
     color: subjectColors[subject],
   }));
 }
+

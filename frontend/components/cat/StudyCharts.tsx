@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   AreaChart, Area, LineChart, Line, BarChart, Bar,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
@@ -7,16 +8,32 @@ import {
 } from 'recharts';
 import type { SubjectTrendPoint, MockScorePoint, StudyDistribution, WeeklyConsistencyPoint } from '@/lib/types/cat';
 import { SUBJECT_COLORS } from '@/lib/constants/cat';
+import type { TimeFrame } from '@/lib/api/progress';
+import { getSubjectTrend, getMockScoreTrend, getWeeklyConsistency, getStudyDistribution } from '@/lib/api/cat';
+import { createClient } from '@/lib/supabase/client';
+import { subMonths, addMonths, format } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const tooltipStyle = {
   contentStyle: { backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', fontSize: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.07)' },
   labelStyle: { fontWeight: 600, color: '#1E293B', marginBottom: 4 },
 };
 
-function ChartCard({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
+const TIMEFRAMES: { label: string; value: TimeFrame }[] = [
+  { label: '30D', value: '30d' },
+  { label: '3M', value: '3m' },
+  { label: '6M', value: '6m' },
+  { label: 'All', value: 'all' },
+];
+
+function ChartCard({ title, children, className = '', action }: { title: string; children: React.ReactNode; className?: string; action?: React.ReactNode }) {
   return (
     <div className={`card-base p-5 ${className}`}>
-      <h3 className="section-title mb-5">{title}</h3>
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="section-title">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );
@@ -87,35 +104,48 @@ function WeeklyChart({ data }: { data: WeeklyConsistencyPoint[] }) {
   );
 }
 
-function DistributionChart({ data }: { data: StudyDistribution[] }) {
+function DistributionChart({ data, month, onPrevMonth, onNextMonth }: { data: StudyDistribution[]; month: Date; onPrevMonth: () => void; onNextMonth: () => void }) {
   const total = data.reduce((s,d) => s+d.hours, 0);
-  if (total === 0) return <Empty msg="Log study time to see distribution." />;
   const RL = Math.PI/180;
   const label = ({cx,cy,midAngle,innerRadius,outerRadius,percent}:any) => {
     if (percent<0.05) return null;
     const r = innerRadius+(outerRadius-innerRadius)*0.5;
     return <text x={cx+r*Math.cos(-midAngle*RL)} y={cy+r*Math.sin(-midAngle*RL)} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{`${(percent*100).toFixed(0)}%`}</text>;
   };
+
   return (
-    <div className="flex items-center gap-4">
-      <ResponsiveContainer width={160} height={160}>
-        <PieChart>
-          <Pie data={data} dataKey="hours" nameKey="subject" cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={3} labelLine={false} label={label}>
-            {data.map((e,i) => <Cell key={i} fill={e.color} />)}
-          </Pie>
-          <Tooltip {...tooltipStyle} formatter={(v:any) => [`${v}h`,'Study time']} />
-        </PieChart>
-      </ResponsiveContainer>
-      <div className="space-y-2">
-        {data.map((d) => (
-          <div key={d.subject} className="flex items-center gap-2 text-sm">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-            <span className="text-slate-600 font-medium">{d.subject}</span>
-            <span className="text-slate-400">{d.hours}h</span>
-          </div>
-        ))}
-        <p className="text-xs text-slate-400 mt-1">Total: {total}h this month</p>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between border-b pb-2 border-slate-100">
+        <span className="text-xs font-semibold text-slate-700">{format(month, 'MMMM yyyy')}</span>
+        <div className="flex items-center gap-1">
+          <button onClick={onPrevMonth} className="p-1 rounded hover:bg-slate-100 text-slate-500"><ChevronLeft className="w-3.5 h-3.5" /></button>
+          <button onClick={onNextMonth} className="p-1 rounded hover:bg-slate-100 text-slate-500"><ChevronRight className="w-3.5 h-3.5" /></button>
+        </div>
       </div>
+      {total === 0 ? (
+        <Empty msg="No study time logged in this month." />
+      ) : (
+        <div className="flex items-center gap-4">
+          <ResponsiveContainer width={150} height={150}>
+            <PieChart>
+              <Pie data={data} dataKey="hours" nameKey="subject" cx="50%" cy="50%" innerRadius={40} outerRadius={68} paddingAngle={3} labelLine={false} label={label}>
+                {data.map((e,i) => <Cell key={i} fill={e.color} />)}
+              </Pie>
+              <Tooltip {...tooltipStyle} formatter={(v:any) => [`${v}h`,'Study time']} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="space-y-2 min-w-0">
+            {data.map((d) => (
+              <div key={d.subject} className="flex items-center gap-2 text-xs">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                <span className="text-slate-600 font-medium">{d.subject}</span>
+                <span className="text-slate-400 ml-auto">{d.hours}h</span>
+              </div>
+            ))}
+            <p className="text-xs text-slate-400 mt-1 pt-1 border-t border-slate-50">Total: {total}h</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -149,18 +179,101 @@ function ProjectionChart({ mocks }: { mocks: MockScorePoint[] }) {
   );
 }
 
-export function StudyCharts({ trend, mocks, dist, weekly }: { trend: SubjectTrendPoint[]; mocks: MockScorePoint[]; dist: StudyDistribution[]; weekly: WeeklyConsistencyPoint[] }) {
+export function StudyCharts({
+  trend: initialTrend,
+  mocks: initialMocks,
+  dist: initialDist,
+  weekly: initialWeekly,
+}: {
+  trend: SubjectTrendPoint[];
+  mocks: MockScorePoint[];
+  dist: StudyDistribution[];
+  weekly: WeeklyConsistencyPoint[];
+}) {
+  const [timeframe, setTimeframe] = useState<TimeFrame>('30d');
+  const [trendData, setTrendData] = useState<SubjectTrendPoint[]>(initialTrend);
+  const [mockData, setMockData] = useState<MockScorePoint[]>(initialMocks);
+  const [weeklyData, setWeeklyData] = useState<WeeklyConsistencyPoint[]>(initialWeekly);
+  
+  const [distMonth, setDistMonth] = useState<Date>(new Date());
+  const [distData, setDistData] = useState<StudyDistribution[]>(initialDist);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleTimeframeChange = async (tf: TimeFrame) => {
+    setTimeframe(tf);
+    setIsLoading(true);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const [t, m, w] = await Promise.all([
+        getSubjectTrend(supabase, user.id, tf),
+        getMockScoreTrend(supabase, user.id, tf),
+        getWeeklyConsistency(supabase, user.id, tf),
+      ]);
+      setTrendData(t);
+      setMockData(m);
+      setWeeklyData(w);
+    }
+    setIsLoading(false);
+  };
+
+  const handleDistMonthChange = async (newMonth: Date) => {
+    setDistMonth(newMonth);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const d = await getStudyDistribution(supabase, user.id, newMonth);
+      setDistData(d);
+    }
+  };
+
+  const timeframeAction = (
+    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+      {TIMEFRAMES.map((tf) => (
+        <button
+          key={tf.value}
+          onClick={() => handleTimeframeChange(tf.value)}
+          className={cn(
+            'px-2 py-0.5 text-[11px] font-semibold rounded-md transition-all',
+            timeframe === tf.value
+              ? 'bg-white text-slate-800 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          )}
+        >
+          {tf.label}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4 transition-opacity", isLoading ? "opacity-50" : "opacity-100")}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Subject Accuracy Trend"><SubjectTrendChart data={trend} /></ChartCard>
-        <ChartCard title="Mock Score Progression"><MockScoreChart data={mocks} /></ChartCard>
+        <ChartCard title="Subject Accuracy Trend" action={timeframeAction}>
+          <SubjectTrendChart data={trendData} />
+        </ChartCard>
+        <ChartCard title="Mock Score Progression" action={timeframeAction}>
+          <MockScoreChart data={mockData} />
+        </ChartCard>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Weekly Consistency" className="lg:col-span-2"><WeeklyChart data={weekly} /></ChartCard>
-        <ChartCard title="Study Distribution (This Month)"><DistributionChart data={dist} /></ChartCard>
+        <ChartCard title="Weekly Consistency" className="lg:col-span-2" action={timeframeAction}>
+          <WeeklyChart data={weeklyData} />
+        </ChartCard>
+        <ChartCard title="Study Distribution">
+          <DistributionChart
+            data={distData}
+            month={distMonth}
+            onPrevMonth={() => handleDistMonthChange(subMonths(distMonth, 1))}
+            onNextMonth={() => handleDistMonthChange(addMonths(distMonth, 1))}
+          />
+        </ChartCard>
       </div>
-      <ChartCard title="Score Projection"><ProjectionChart mocks={mocks} /></ChartCard>
+      <ChartCard title="Score Projection">
+        <ProjectionChart mocks={mockData} />
+      </ChartCard>
     </div>
   );
 }
+

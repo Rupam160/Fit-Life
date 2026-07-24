@@ -68,13 +68,33 @@ export async function getDailyCalories(
   return estimateCalories(data.type as WorkoutType);
 }
 
+import type { TimeFrame } from './progress';
+
 export async function getConsistencyTrend(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  timeframe: TimeFrame = '30d'
 ): Promise<ConsistencyPoint[]> {
-  const last30 = getLast30Days();
-  const from = last30[0];
-  const to = last30[last30.length - 1];
+  let from: string;
+  const to = format(new Date(), 'yyyy-MM-dd');
+
+  if (timeframe === '3m') {
+    from = format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  } else if (timeframe === '6m') {
+    from = format(subDays(new Date(), 179), 'yyyy-MM-dd');
+  } else if (timeframe === 'all') {
+    const { data: firstWorkout } = await supabase
+      .from('workouts')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    from = firstWorkout?.date ?? format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  } else {
+    from = format(subDays(new Date(), 29), 'yyyy-MM-dd');
+  }
 
   const { data } = await supabase
     .from('workouts')
@@ -85,9 +105,21 @@ export async function getConsistencyTrend(
 
   const workedSet = new Set((data ?? []).map((w: { date: string }) => w.date));
 
-  return last30.map((date, i) => ({
+  const startDate = parseISO(from);
+  const endDate = parseISO(to);
+  const dates: string[] = [];
+  let curr = startDate;
+  while (curr <= endDate) {
+    dates.push(format(curr, 'yyyy-MM-dd'));
+    curr = subDays(curr, -1);
+  }
+
+  const step = Math.max(1, Math.floor(dates.length / 8));
+
+  return dates.map((date, i) => ({
     date,
-    label: i % 5 === 0 ? format(parseISO(date), 'MMM d') : '',
+    label: i % step === 0 ? format(parseISO(date), 'MMM d') : '',
     value: workedSet.has(date) ? 1 : 0,
   }));
 }
+

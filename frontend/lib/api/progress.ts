@@ -16,13 +16,33 @@ function getLast30Days(): string[] {
   );
 }
 
+export type TimeFrame = '30d' | '3m' | '6m' | 'all';
+
 export async function getVolumeProgress(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  timeframe: TimeFrame = '30d'
 ): Promise<VolumeProgressPoint[]> {
-  const last30 = getLast30Days();
-  const from = last30[0];
-  const to = last30[last30.length - 1];
+  let from: string;
+  const to = format(new Date(), 'yyyy-MM-dd');
+
+  if (timeframe === '3m') {
+    from = format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  } else if (timeframe === '6m') {
+    from = format(subDays(new Date(), 179), 'yyyy-MM-dd');
+  } else if (timeframe === 'all') {
+    const { data: firstWorkout } = await supabase
+      .from('workouts')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    from = firstWorkout?.date ?? format(subDays(new Date(), 89), 'yyyy-MM-dd');
+  } else {
+    from = format(subDays(new Date(), 29), 'yyyy-MM-dd');
+  }
 
   // Fetch workouts with exercises and sets to calculate volume
   const { data } = await supabase
@@ -40,9 +60,14 @@ export async function getVolumeProgress(
     .eq('user_id', userId)
     .in('type', ['push', 'pull', 'legs']) // Only track volume for these types
     .gte('date', from)
-    .lte('date', to);
+    .lte('date', to)
+    .order('date', { ascending: true });
 
   const workouts = data ?? [];
+
+  if (workouts.length === 0) {
+    return [];
+  }
 
   // Map volume per date
   const volumeMap = new Map<string, { type: string; volume: number }>();
@@ -60,15 +85,28 @@ export async function getVolumeProgress(
     volumeMap.set(w.date, { type: w.type, volume: totalVolume });
   });
 
-  return last30.map((date, i) => {
+  // Build array of dates from 'from' to 'to'
+  const startDate = parseISO(from);
+  const endDate = parseISO(to);
+  const dates: string[] = [];
+  let curr = startDate;
+  while (curr <= endDate) {
+    dates.push(format(curr, 'yyyy-MM-dd'));
+    curr = subDays(curr, -1);
+  }
+
+  const step = Math.max(1, Math.floor(dates.length / 8));
+
+  return dates.map((date, i) => {
     const entry = volumeMap.get(date);
     
     return {
       date,
-      label: i % 5 === 0 ? format(parseISO(date), 'MMM d') : '', // Sparse labels
+      label: i % step === 0 ? format(parseISO(date), 'MMM d') : '', // Sparse labels based on date range
       push: entry?.type === 'push' ? entry.volume : null,
       pull: entry?.type === 'pull' ? entry.volume : null,
       legs: entry?.type === 'legs' ? entry.volume : null,
     };
   });
 }
+
